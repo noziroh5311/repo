@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>웹 에뮬레이터 작업개요서</title>
+<style>
+:root{--bg:#f6f4ef;--surface:#fffdf9;--ink:#23211e;--sub:#5d5950;--line:#e2ddd2;--code:#efebe3;--accent:#a84c31;--tag:#fbe8d6;--tag-ink:#8a3e28;--decide:#dde6f3;--decide-ink:#2f4a70;--mockbg:#eae6de}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1a1a1d;--surface:#222226;--ink:#ebe7df;--sub:#aaa59b;--line:#38383e;--code:#2c2c31;--accent:#e08a6d;--tag:#4a2c20;--tag-ink:#f3b89e;--decide:#24344a;--decide-ink:#b7cbe8;--mockbg:#2a2a2e}}
+:root[data-theme="dark"]{--bg:#1a1a1d;--surface:#222226;--ink:#ebe7df;--sub:#aaa59b;--line:#38383e;--code:#2c2c31;--accent:#e08a6d;--tag:#4a2c20;--tag-ink:#f3b89e;--decide:#24344a;--decide-ink:#b7cbe8;--mockbg:#2a2a2e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif}
+main{max-width:920px;margin:0 auto;padding:40px 16px 80px}
+h1{font-size:30px;line-height:1.3;margin:0 0 16px}
+h2{font-size:22px;margin:48px 0 12px;padding-top:24px;border-top:1px solid var(--line)}
+h3{font-size:17px;margin:28px 0 8px}
+p,li{color:var(--ink)}
+blockquote{margin:0 0 24px;padding:12px 16px;background:var(--surface);border:1px solid var(--line);border-radius:10px;color:var(--sub)}
+blockquote p{margin:0;color:var(--sub)}
+hr{display:none}
+code{font-family:'JetBrains Mono','D2Coding',Consolas,monospace;font-size:.88em;background:var(--code);padding:1px 5px;border-radius:4px}
+pre{background:var(--code);border-radius:10px;padding:14px 16px;overflow-x:auto;line-height:1.5}
+pre code{background:none;padding:0;font-size:13px}
+.table{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:14px;background:var(--surface)}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--code);font-weight:600;white-space:nowrap}
+.tag{display:inline-block;font-size:12px;font-weight:600;padding:0 6px;border-radius:4px;background:var(--tag);color:var(--tag-ink);vertical-align:1px}
+.tag-decide{background:var(--decide);color:var(--decide-ink)}
+li.check{list-style:none;margin-left:-22px}
+.mocks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:16px 0}
+.mock{margin:0;background:var(--mockbg);border-radius:12px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.mock.wide{grid-column:1/-1}
+.mock svg{display:block;border-radius:8px}
+figcaption{font-size:13px;color:var(--sub);text-align:center}
+@media (max-width:560px){.mocks{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<main>
+<h1>웹 고전게임 에뮬레이터 — 작업개요서</h1>
+<blockquote><p>회의(클라우드 세션) 결과 정리본. 실제 개발은 로컬/서버 Claude Code에서 진행한다.<br>목업 이미지는 이 문서 8장에 SVG 코드로 삽입돼 있다. 원본 파일은 <code>mockups/</code> 폴더 (<code>ccr-c4bec42a-kdahz7</code> 브랜치).<br>이 문서에서 <strong><span class="tag">미확인</span></strong> 표시가 붙은 항목은 회의 중 검증하지 못한 것이다. 구현 전에 공식 문서나 실제 동작으로 먼저 확인할 것.</p></blockquote>
+<hr>
+<h2>1. 목표와 범위</h2>
+<ul><li><strong>개인 전용</strong> 웹 에뮬레이터. 기존 로그인 세션 뒤에 두고 본인만 사용한다.</li><li><strong>모바일과 데스크탑 모두</strong> 같은 페이지에서 플레이할 수 있어야 한다.</li><li>대상은 <strong>턴제 게임 위주</strong>다. 액션 게임은 모바일 터치 조작이 어려워서 제외하고, 슈퍼 마리오만 시험용으로 예외를 둔다.</li><li>게임은 <strong>전부 한글판</strong>이어야 한다. 게임기 게임은 사실상 팬 한글패치판이다.</li><li>범위 밖: 공개 서비스, 다인용 기능, 넷플레이.</li></ul>
+<h2>2. 핵심 구조</h2>
+<p>에뮬레이션은 전부 <strong>클라이언트(브라우저, WASM)</strong>에서 돌아간다. 서버는 정적 파일 서빙, 인증 확인, 세이브 저장만 담당한다. 그래서 저전력 서버로도 부하 문제가 없다.</p>
+<pre data-lang=""><code>브라우저 (EmulatorJS / js-dos, WASM)
+  │  ① 페이지·코어(.js/.wasm) 로드       ← nginx 정적 서빙 (캐시)
+  │  ② ROM/게임 번들 요청                ← PHP 세션 확인 → X-Accel-Redirect → nginx internal
+  │  ③ 세이브 업로드/다운로드            ← PHP (세션 확인) → 디스크 + MariaDB 메타데이터
+  ▼
+서버: nginx 1.24 + PHP 8.3-fpm + MariaDB 10.11</code></pre>
+<h2>3. 서버 환경 (현행)</h2>
+<div class="table"><table><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody><tr><td>하드웨어</td><td>Intel NUC7CJYH, Celeron J4005 (2코어), RAM 16GB, WD Green SSD 480GB (여유 약 419GB)</td></tr><tr><td>OS</td><td>Ubuntu 24.04.4 LTS, 커널 6.8</td></tr><tr><td>웹</td><td>nginx 1.24.0 (80/443), PHP 8.3.6 + php8.3-fpm (OPcache 켜짐)</td></tr><tr><td>PHP 확장</td><td>mysqli, pdo_mysql, curl, gd, mbstring, openssl, sodium, zip 등. intl, bcmath, imagick, redis, apcu는 없음</td></tr><tr><td>DB</td><td>MariaDB 10.11.14, <code>127.0.0.1:5311</code> (로컬 전용)</td></tr><tr><td>가상호스트</td><td>kwonmo.com → <code>/var/www/html/hm</code>, api.kwonmo.com → <code>/var/www/html/api</code>, kwonmo.co.kr → <code>/var/www/html/pt</code>, kwonmo.net → 리다이렉트/프록시</td></tr><tr><td>인증서</td><td>Let's Encrypt (kwonmo.com), certbot.timer 자동 갱신</td></tr><tr><td>Python</td><td>3.12 시스템 기본만 있음. 이 프로젝트에는 쓰지 않는다</td></tr></tbody></table></div>
+<ul><li>새 런타임(Node, Python 패키지 등)은 <strong>추가하지 않는다.</strong> nginx, PHP, MariaDB로 전부 구현한다.</li><li>새로 설치할 게 생기면 먼저 사용자에게 알린다.</li></ul>
+<h2>4. 에뮬레이터 구성 (확정)</h2>
+<div class="table"><table><thead><tr><th>구분</th><th>프론트엔드</th><th>코어/엔진</th><th>비고</th></tr></thead><tbody><tr><td>게임기 (SFC)</td><td><strong>EmulatorJS</strong></td><td><strong>snes9x</strong></td><td>현재 게임 리스트는 전부 SFC</td></tr><tr><td>DOS</td><td><strong>js-dos</strong></td><td><strong>DOSBox-X</strong></td><td>사용자가 마지막으로 쓴 엔진이 DOSBox-X</td></tr><tr><td>(보류) 패미컴</td><td>EmulatorJS</td><td>fceumm</td><td>패미컴 원판 게임이 추가될 때만</td></tr></tbody></table></div>
+<ul><li>모든 파일(프론트엔드, 코어)은 <strong>내 서버에서 self-host</strong>한다. 외부 CDN을 쓰지 않는다.</li><li>라이선스: snes9x는 비상업 조건, js-dos는 GPL이다. 개인용이라 문제없다. EmulatorJS 라이선스는 <span class="tag">미확인</span>.</li><li><span class="tag">미확인</span> js-dos 최신 버전이 외부 클라우드 서비스 없이 완전히 self-host로 동작하는지, 세이브를 로컬이나 내 서버로만 저장하도록 설정할 수 있는지 확인할 것.</li><li><span class="tag">미확인</span> EmulatorJS가 DOS용 libretro 코어(DOSBox Pure 등)를 지원하는지. 지원하면 프론트엔드를 하나로 합치는 걸 검토하고, 아니면 js-dos를 별도로 쓴다.</li></ul>
+<h2>5. 게임 리스트</h2>
+<div class="table"><table><thead><tr><th>게임</th><th>기종</th><th>코어</th><th>한글</th><th>비고</th></tr></thead><tbody><tr><td>제4차 슈퍼로봇대전</td><td>SFC (1995)</td><td>snes9x</td><td>한글패치 리뉴얼판 v1.01 (원 제작자가 27년 만에 전면 재작업, 네이버 카페 "한식구"에서 배포)</td><td>패치가 요구하는 원본 ROM 판본 <span class="tag">미확인</span></td></tr><tr><td>프론트 미션</td><td>SFC (1995)</td><td>snes9x</td><td>유저 한글패치 있음. <strong>불완전</strong></td><td>전투 중 적군(U.S.N) 병사 대사가 깨져서 나옴. 최신판에서 고쳐졌는지 <span class="tag">미확인</span></td></tr><tr><td>슈퍼 마리오 컬렉션 (All-Stars, 마리오3 포함)</td><td>SFC (1993)</td><td>snes9x</td><td>필요 없음</td><td>시험용 예외. 대사가 거의 없음</td></tr><tr><td>DOS 게임들</td><td>DOS</td><td>DOSBox-X</td><td>—</td><td><strong>리스트 미정.</strong> 게임마다 CD판/디스켓판과 한글 환경 필요 여부 확인</td></tr></tbody></table></div>
+<h3>한글패치 처리 원칙</h3>
+<ul><li>패치(IPS/BPS/xdelta)는 <strong>서버에 올리기 전에 오프라인에서 미리 적용</strong>한다. 에뮬레이터 쪽에서는 패치를 다루지 않는다.</li><li>패치마다 대상 원본 판본(CRC)이 정해져 있다. 판본이 다르면 패치가 깨진다.</li><li>ROM 용량을 늘리거나 구조를 바꾸는 패치가 있으므로, 적용한 뒤 snes9x에서 실제로 구동되는지 확인한다.</li><li>특수칩: 위 SFC 게임들은 특수칩이 없는 것으로 알고 있다 [미확인, ROM 헤더로 확인]. BIOS가 필요한 기종은 아직 없다.</li><li>DOS: 외국 게임 한글패치판 중 일부는 한글 환경 상주 프로그램을 먼저 띄워야 한다. 해당되는 게임은 js-dos 번들 안에 넣고 자동 실행하게 설정한다.</li></ul>
+<h3>저작권</h3>
+<ul><li>ROM과 게임 파일은 사용자가 직접 준비한다. 공개 경로로는 절대 노출하지 않는다 (6장 참고).</li></ul>
+<h2>6. 파일 배치와 인증</h2>
+<h3>디렉터리 (웹 root 밖)</h3>
+<pre data-lang=""><code>/srv/emu/
+├── roms/      # SFC ROM (한글패치 적용 완료본)
+├── dos/       # js-dos 번들 (.jsdos)
+└── saves/     # 세이브 (7장)</code></pre>
+<p><strong>웹 root 밖에 두는 이유:</strong></p>
+<ol><li>웹 root 안의 파일은 nginx가 PHP(세션 검사)를 거치지 않고 바로 내려준다. 그러면 로그인이 우회된다.</li><li>세이브 업로드 디렉터리가 웹 root 안에 있으면 <code>.php</code> 파일이 업로드됐을 때 실행될 수 있다.</li><li><code>deny</code> 설정으로 막는 방식은 location 우선순위를 잘못 쓰면 노출된다. root 밖에 두면 설정을 실수해도 안전하다.</li><li>배포(rsync --delete 등)할 때 데이터가 지워지지 않고, 백업과 권한 관리도 따로 할 수 있다.</li></ol>
+<h3>인증 흐름 (X-Accel-Redirect)</h3>
+<pre data-lang=""><code>GET /emu/rom.php?id=srw4
+ → PHP: 세션 확인. 실패하면 403
+ → 성공하면 헤더 `X-Accel-Redirect: /_emu_roms/&lt;파일명&gt;`만 보내고 종료
+ → nginx: internal location에서 sendfile로 전송 (Range 요청 지원, FPM 워커를 붙잡지 않음)</code></pre>
+<ul><li>파일명은 <strong>DB나 화이트리스트에서 id로 찾아서</strong> 결정한다. 요청 파라미터를 경로에 그대로 붙이지 않는다 (경로 조작 방지).</li></ul>
+<h3>설치 위치 <span class="tag tag-decide">결정 필요</span></h3>
+<ul><li>추천: <strong>이미 로그인이 구현된 사이트 밑에 <code>/emu/</code> 경로로</strong> 넣는다. 세션 쿠키를 그대로 쓸 수 있고, 인증서도 바꿀 필요가 없다.</li><li>로그인이 hm, api, pt 중 어느 사이트에 있는지, 세션이 PHP 기본 <code>$_SESSION</code>인지 DB 기반 자체 구현인지는 <strong>아직 확인하지 못했다.</strong> 해당 코드를 먼저 읽고 결정한다.</li><li>서브도메인(예: game.kwonmo.com)으로 가면 인증서에 도메인 추가, 세션 쿠키 도메인 설정 변경이 필요하다.</li></ul>
+<h3>nginx 설정 초안 (검증 전 스케치)</h3>
+<pre data-lang="nginx"><code># 에뮬레이터 페이지: 멀티스레드 코어용 헤더
+location /emu/ {
+    add_header Cross-Origin-Opener-Policy  &quot;same-origin&quot; always;
+    add_header Cross-Origin-Embedder-Policy &quot;require-corp&quot; always;
+    # 기존 PHP 처리 설정과 합칠 것
+}
+
+# 코어/프론트엔드 정적 파일: 미리 압축해 둔 .gz 사용, 긴 캐시
+location /emu/assets/ {
+    gzip_static on;
+    add_header Cache-Control &quot;private, max-age=31536000, immutable&quot; always;
+}
+
+# ROM / DOS 번들: 외부에서 직접 접근 불가, PHP가 X-Accel-Redirect로만 연다
+location /_emu_roms/ { internal; alias /srv/emu/roms/; }
+location /_emu_dos/  { internal; alias /srv/emu/dos/; }
+
+# 세이브 업로드: 이 location에서만 업로드 한도를 올린다 (nginx 기본값은 1MB)
+location = /emu/save.php {
+    client_max_body_size 20m;
+    # PHP 처리 설정
+}</code></pre>
+<ul><li><code>add_header</code>는 하위 location에서 다시 선언하면 상위 location의 헤더가 상속되지 않는다. 헤더가 실제로 나가는지 확인할 것.</li><li><span class="tag">미확인</span> <code>/etc/nginx/mime.types</code>에 <code>application/wasm wasm;</code>가 있는지 <code>grep wasm /etc/nginx/mime.types</code>로 확인한다. 없으면 추가한다. 이게 없으면 wasm 스트리밍 컴파일이 안 된다.</li><li><code>.wasm</code>과 <code>.js</code>는 배포할 때 <code>.gz</code>로 미리 압축해 둔다 (CPU가 약해서 요청마다 압축하지 않게). brotli는 쓰지 않는다 (새 모듈 설치가 필요함).</li><li>PHP의 <code>upload_max_filesize</code>와 <code>post_max_size</code>도 nginx 한도에 맞춘다. 현재 값 <span class="tag">미확인</span>.</li></ul>
+<h2>7. 세이브 처리</h2>
+<h3>세이브 종류와 원칙</h3>
+<div class="table"><table><thead><tr><th>종류</th><th>크기</th><th>원칙</th></tr></thead><tbody><tr><td>SRAM (<code>.srm</code>, 게임 안에서 저장한 것)</td><td>수 KB~수십 KB</td><td><strong>진짜 세이브.</strong> 반드시 서버에 백업한다. 코어 버전이 바뀌어도 호환된다</td></tr><tr><td>세이브 스테이트</td><td>수백 KB 수준</td><td>편의 기능이다. 코어 버전에 종속되므로, 코어를 업데이트하면 깨질 수 있다는 걸 전제로 둔다</td></tr><tr><td>DOS 게임 저장 파일</td><td>게임마다 다름</td><td>진짜 세이브. 게임 디렉터리에서 바뀐 파일만 zip으로 묶어서 백업한다</td></tr></tbody></table></div>
+<ul><li>DOSBox-X 세이브 스테이트는 브라우저에서 안정적인지 <span class="tag">미확인</span>. DOS는 게임 자체 저장 파일에만 의존하는 것을 기본으로 한다.</li></ul>
+<h3>저장 방식: 파일은 디스크, 메타데이터는 MariaDB</h3>
+<ul><li>JSON에 base64로 넣지 않는다 (용량 약 33% 증가). DB BLOB에도 넣지 않는다 (백업하고 파일을 꺼내 보기가 번거로움).</li><li>경로: <code>/srv/emu/saves/{game_id}/{kind}/{slot}/{timestamp}.{ext}</code></li><li><strong>덮어쓰지 않고 버전을 쌓는다.</strong> 게임, 종류, 슬롯마다 최근 N개만 남긴다 (N은 구현할 때 결정).</li></ul>
+<h3>테이블 초안</h3>
+<pre data-lang="sql"><code>CREATE TABLE emu_saves (
+  id           BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  game_id      VARCHAR(64)  NOT NULL,
+  kind         ENUM(&#x27;sram&#x27;,&#x27;state&#x27;,&#x27;dosfs&#x27;) NOT NULL,
+  slot         TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  core         VARCHAR(32)  NOT NULL,          -- snes9x / dosbox-x
+  core_version VARCHAR(32)  NULL,              -- 스테이트 호환성 판단용
+  path         VARCHAR(255) NOT NULL,
+  size         INT UNSIGNED NOT NULL,
+  sha256       CHAR(64)     NOT NULL,
+  device       VARCHAR(32)  NULL,              -- pc / phone 등
+  created_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_lookup (game_id, kind, slot, created_at)
+);</code></pre>
+<h3>동기화 규칙</h3>
+<ul><li>평소에는 브라우저 <strong>IndexedDB</strong>에 저장한다. 서버는 백업이자 기기 간 동기화 용도다.</li><li><strong>덮어쓰기 사고 방지:</strong> 업로드할 때 "마지막으로 받은 버전 id"를 함께 보낸다. 서버에 그보다 새 버전이 있으면 409로 거절하고, 사용자가 어느 쪽을 쓸지 고르게 한다. 버전을 쌓아 두므로 잘못 골라도 복구할 수 있다.</li><li>업로드 시점: 게임 종료할 때 자동, 그리고 수동 "지금 백업" 버튼.</li><li><span class="tag">미확인</span> EmulatorJS의 세이브 이벤트 콜백 유무, SRAM과 스테이트를 꺼내고 넣는 API. <span class="tag">미확인</span> js-dos에서 변경된 파일을 꺼내는 API.</li><li>화면에 동기화 상태를 항상 표시한다 (목업: "세이브 동기화됨 · 12:40").</li></ul>
+<h2>8. UI</h2>
+<h3>공통 구조</h3>
+<ul><li><strong>위: 게임 화면 / 아래: 컨트롤러.</strong> 휴대용 게임기처럼 생긴 구성이다.</li><li>상단바: 목록으로 가기, 게임 제목, 메뉴.</li><li>화면 아래 상태줄: 코어 이름, 세이브 동기화 상태.</li><li><strong>컨트롤러 탭 <code>게임패드 | 키보드</code></strong>: 기종에 따라 기본 탭을 자동으로 고르고(SFC는 게임패드, DOS는 키보드), 사용자가 전환할 수 있다.</li><li>화면 비율: SFC는 8:7 (256×224), DOS는 4:3 (320×200을 4:3으로 표시). 확대는 정수배에 가깝게 하고, 픽셀이 뭉개지지 않게 한다.</li><li>모든 터치 대상은 최소 44px로 한다. 모바일 키보드의 개별 키만 예외다 (아래 참고).</li></ul>
+<h3>게임패드 탭 (SFC)</h3>
+<ul><li>L/R, 방향키, ABXY (X 위, Y 왼쪽, A 오른쪽, B 아래), SELECT/START.</li><li>모바일 하단 빠른 버튼: <strong>퀵세이브 / 퀵로드 / 빨리감기 ×2.</strong> 빨리감기는 슈로대처럼 전투 연출이 긴 턴제 게임에서 필수다.</li><li>데스크탑 키 매핑 (초안): 방향키 = 방향키, A=X, B=Z, X=S, Y=A, L=Q, R=W, SELECT=Shift, START=Enter, 퀵세이브=F5, 퀵로드=F8. "패드 숨기기"로 화면만 볼 수 있게 한다.</li><li>멀티터치: 방향키를 누른 채로 A 버튼 누르기가 되어야 한다 (pointer 이벤트로 버튼별 독립 처리).</li></ul>
+<h3>키보드 탭 (DOS)</h3>
+<ul><li>간략 QWERTY. 모든 행을 11칸 폭에 맞췄다.<ul><li><code>Esc F1~F10</code></li><li><code>1~0 ⌫</code></li><li><code>Q~P Tab</code></li><li><code>A~L Enter</code></li><li><code>Shift Z~M ↑ Del</code></li><li><code>Ctrl Alt Space ← ↓ →</code></li></ul></li><li><strong>모바일에 별도의 터치패드나 클릭 버튼은 두지 않는다.</strong> 게임 화면을 직접 터치하면 마우스로 동작하게 한다 (탭하면 클릭). <span class="tag">미확인</span> js-dos의 터치를 마우스로 처리하는 방식과 옵션.</li><li>모바일에서 키 하나는 폭 약 29px이다 (폰 기본 키보드와 비슷). 실제로 써 보고 좁으면 F키 줄을 접을 수 있게 하는 걸 검토한다.</li><li>데스크탑에서는 실제 키보드와 마우스 입력을 그대로 게임에 전달하고, 화면 키보드는 터치 노트북이나 태블릿용이다.</li><li>게임별로 자주 쓰는 키만 모은 프리셋은 DOS 게임 리스트가 정해진 뒤에 결정한다.</li></ul>
+<h3>기타</h3>
+<ul><li>모바일 가로 모드: 화면을 가운데 두고 컨트롤을 양옆으로 나누는 구성 (이번 SVG에는 포함하지 않음. 필요하면 추가).</li><li>오디오는 사용자가 한 번 조작한 뒤에 시작된다 (브라우저 자동재생 정책). 게임 시작 버튼을 누르는 것으로 해결한다.</li></ul>
+<h3>목업 (<code>mockups/</code>)</h3>
+<div class="table"><table><thead><tr><th>파일</th><th>내용</th></tr></thead><tbody><tr><td><code>mockups/mobile-gamepad.svg</code></td><td>모바일 세로, 게임패드 탭 (390×844)</td></tr><tr><td><code>mockups/mobile-keyboard.svg</code></td><td>모바일 세로, 키보드 탭 (390×844)</td></tr><tr><td><code>mockups/desktop-gamepad.svg</code></td><td>데스크탑, 게임패드 탭 (1280×1000)</td></tr><tr><td><code>mockups/desktop-keyboard.svg</code></td><td>데스크탑, 키보드 탭 (1280×1000)</td></tr></tbody></table></div>
+<div class="mocks"><figure class="mock narrow"><svg xmlns="http://www.w3.org/2000/svg" width="100%" style="max-width:390px;height:auto" viewBox="0 0 390 844" role="img" aria-label="모바일 세로 - 게임패드 탭">
+<title>모바일 세로 - 게임패드 탭</title>
+<rect width="390" height="844" fill="#E7E3DA"/>
+<rect x="16.0" y="12.0" width="44.0" height="44.0" rx="12" fill="#D8D3C8"/>
+<path d="M41 28 l-6 6 6 6" fill="none" stroke="#23211E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="195.0" y="34.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="15" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">제4차 슈퍼로봇대전</text>
+<rect x="330.0" y="12.0" width="44.0" height="44.0" rx="12" fill="#D8D3C8"/>
+<path d="M344 29h16M344 34h16M344 39h16" fill="none" stroke="#23211E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="16.0" y="68.0" width="358.0" height="340.0" rx="18" fill="#26262B"/>
+<rect x="28.0" y="80.0" width="334.0" height="292.0" rx="6" fill="#0E1116"/>
+<text x="195.0" y="214.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="14" font-weight="400" fill="#8B93A1" text-anchor="middle" dominant-baseline="central">게임 화면</text>
+<text x="195.0" y="238.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="12" font-weight="500" fill="#6B7482" text-anchor="middle" dominant-baseline="central">256 × 224 · 8:7 비율</text>
+<circle cx="32" cy="389" r="3.5" fill="#5FB37A"/>
+<text x="42.0" y="389.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="500" fill="#A8A49B" text-anchor="start" dominant-baseline="central">SNES9X</text>
+<text x="362.0" y="389.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="500" fill="#A8A49B" text-anchor="end" dominant-baseline="central">세이브 동기화됨 · 12:40</text>
+<g id="mobile-gamepad-controller-tabs">
+<rect x="16.0" y="420.0" width="358.0" height="40.0" rx="12" fill="#D8D3C8"/>
+<rect x="20.0" y="424.0" width="175.0" height="32.0" rx="9" fill="#26262B"/>
+<text x="107.5" y="440.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="13" font-weight="600" fill="#F4F1EA" text-anchor="middle" dominant-baseline="central">게임패드</text>
+<text x="282.5" y="440.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="13" font-weight="500" fill="#4A4740" text-anchor="middle" dominant-baseline="central">키보드</text>
+</g>
+<rect x="16.0" y="478.0" width="116.0" height="44.0" rx="22" fill="#BDB7AA"/>
+<text x="74.0" y="500.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="15" font-weight="700" fill="#23211E" text-anchor="middle" dominant-baseline="central">L</text>
+<rect x="258.0" y="478.0" width="116.0" height="44.0" rx="22" fill="#BDB7AA"/>
+<text x="316.0" y="500.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="15" font-weight="700" fill="#23211E" text-anchor="middle" dominant-baseline="central">R</text>
+<g id="mobile-gamepad-dpad">
+<rect x="68.0" y="547.0" width="48.0" height="144.0" rx="10" fill="#34343A"/>
+<rect x="20.0" y="595.0" width="144.0" height="48.0" rx="10" fill="#34343A"/>
+<path d="M92.0 563.32l7.68 11.52h-15.36z" fill="#CFCBC2"/>
+<path d="M92.0 674.68l7.68 -11.52h-15.36z" fill="#CFCBC2"/>
+<path d="M36.32 619.0l11.52 7.68v-15.36z" fill="#CFCBC2"/>
+<path d="M147.68 619.0l-11.52 7.68v-15.36z" fill="#CFCBC2"/>
+</g>
+<g id="mobile-gamepad-abxy">
+<circle cx="289.0" cy="565.0" r="27.0" fill="#3F4A5A"/>
+<text x="289.0" y="565.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="17" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">X</text>
+<circle cx="235.0" cy="619.0" r="27.0" fill="#3F4A5A"/>
+<text x="235.0" y="619.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="17" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">Y</text>
+<circle cx="343.0" cy="619.0" r="27.0" fill="#A84C31"/>
+<text x="343.0" y="619.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="17" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">A</text>
+<circle cx="289.0" cy="673.0" r="27.0" fill="#A84C31"/>
+<text x="289.0" y="673.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="17" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">B</text>
+</g>
+<rect x="97.0" y="716.0" width="88.0" height="44.0" rx="22" fill="#CFC9BD"/>
+<text x="141.0" y="738.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="12" font-weight="700" fill="#3A3833" text-anchor="middle" dominant-baseline="central" letter-spacing="1">SELECT</text>
+<rect x="205.0" y="716.0" width="88.0" height="44.0" rx="22" fill="#CFC9BD"/>
+<text x="249.0" y="738.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="12" font-weight="700" fill="#3A3833" text-anchor="middle" dominant-baseline="central" letter-spacing="1">START</text>
+<line x1="16" y1="770" x2="374" y2="770" stroke="#D2CDC1"/>
+<text x="75.7" y="792.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="13" font-weight="500" fill="#4A4740" text-anchor="middle" dominant-baseline="central">퀵세이브</text>
+<text x="195.0" y="792.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="13" font-weight="500" fill="#4A4740" text-anchor="middle" dominant-baseline="central">퀵로드</text>
+<text x="314.3" y="792.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="13" font-weight="500" fill="#4A4740" text-anchor="middle" dominant-baseline="central">빨리감기 ×2</text>
+</svg><figcaption>모바일 게임패드 · <code>mockups/mobile-gamepad.svg</code></figcaption></figure><figure class="mock narrow"><svg xmlns="http://www.w3.org/2000/svg" width="100%" style="max-width:390px;height:auto" viewBox="0 0 390 844" role="img" aria-label="모바일 세로 - 키보드 탭">
+<title>모바일 세로 - 키보드 탭</title>
+<rect width="390" height="844" fill="#E7E3DA"/>
+<rect x="16.0" y="12.0" width="44.0" height="44.0" rx="12" fill="#D8D3C8"/>
+<path d="M41 28 l-6 6 6 6" fill="none" stroke="#23211E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="195.0" y="34.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="15" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">[DOS 게임 제목]</text>
+<rect x="330.0" y="12.0" width="44.0" height="44.0" rx="12" fill="#D8D3C8"/>
+<path d="M344 29h16M344 34h16M344 39h16" fill="none" stroke="#23211E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="16.0" y="68.0" width="358.0" height="298.0" rx="18" fill="#26262B"/>
+<rect x="28.0" y="80.0" width="334.0" height="250.0" rx="6" fill="#0E1116"/>
+<text x="195.0" y="193.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="14" font-weight="400" fill="#8B93A1" text-anchor="middle" dominant-baseline="central">게임 화면</text>
+<text x="195.0" y="217.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="12" font-weight="500" fill="#6B7482" text-anchor="middle" dominant-baseline="central">320 × 200 · 4:3 비율</text>
+<circle cx="32" cy="347" r="3.5" fill="#5FB37A"/>
+<text x="42.0" y="347.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="500" fill="#A8A49B" text-anchor="start" dominant-baseline="central">DOSBOX-X</text>
+<text x="362.0" y="347.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="500" fill="#A8A49B" text-anchor="end" dominant-baseline="central">세이브 동기화됨 · 12:40</text>
+<g id="mobile-keyboard-controller-tabs">
+<rect x="16.0" y="378.0" width="358.0" height="40.0" rx="12" fill="#D8D3C8"/>
+<text x="107.5" y="398.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="13" font-weight="500" fill="#4A4740" text-anchor="middle" dominant-baseline="central">게임패드</text>
+<rect x="195.0" y="382.0" width="175.0" height="32.0" rx="9" fill="#26262B"/>
+<text x="282.5" y="398.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="13" font-weight="600" fill="#F4F1EA" text-anchor="middle" dominant-baseline="central">키보드</text>
+</g>
+<g id="mobile-keyboard-keyboard">
+<rect x="16.0" y="432.0" width="27.1" height="36.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="29.5" y="450.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">Esc</text>
+<rect x="49.1" y="432.0" width="27.1" height="36.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="62.6" y="450.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="12" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">F1</text>
+<rect x="82.2" y="432.0" width="27.1" height="36.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="95.7" y="450.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="12" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">F2</text>
+<rect x="115.3" y="432.0" width="27.1" height="36.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="128.8" y="450.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="12" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">F3</text>
+<rect x="148.4" y="432.0" width="27.1" height="36.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="161.9" y="450.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="12" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">F4</text>
+<rect x="181.5" y="432.0" width="27.1" height="36.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="195.0" y="450.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="12" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">F5</text>
+<rect x="214.5" y="432.0" width="27.1" height="36.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="228.1" y="450.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="12" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">F6</text>
+<rect x="247.6" y="432.0" width="27.1" height="36.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="261.2" y="450.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="12" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">F7</text>
+<rect x="280.7" y="432.0" width="27.1" height="36.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="294.3" y="450.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="12" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">F8</text>
+<rect x="313.8" y="432.0" width="27.1" height="36.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="327.4" y="450.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="12" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">F9</text>
+<rect x="346.9" y="432.0" width="27.1" height="36.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="360.5" y="450.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">F10</text>
+<rect x="16.0" y="474.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="29.5" y="499.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">1</text>
+<rect x="49.1" y="474.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="62.6" y="499.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">2</text>
+<rect x="82.2" y="474.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="95.7" y="499.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">3</text>
+<rect x="115.3" y="474.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="128.8" y="499.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">4</text>
+<rect x="148.4" y="474.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="161.9" y="499.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">5</text>
+<rect x="181.5" y="474.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="195.0" y="499.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">6</text>
+<rect x="214.5" y="474.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="228.1" y="499.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">7</text>
+<rect x="247.6" y="474.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="261.2" y="499.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">8</text>
+<rect x="280.7" y="474.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="294.3" y="499.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">9</text>
+<rect x="313.8" y="474.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="327.4" y="499.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">0</text>
+<rect x="346.9" y="474.0" width="27.1" height="50.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="360.5" y="499.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">⌫</text>
+<rect x="16.0" y="530.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="29.5" y="555.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">Q</text>
+<rect x="49.1" y="530.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="62.6" y="555.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">W</text>
+<rect x="82.2" y="530.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="95.7" y="555.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">E</text>
+<rect x="115.3" y="530.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="128.8" y="555.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">R</text>
+<rect x="148.4" y="530.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="161.9" y="555.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">T</text>
+<rect x="181.5" y="530.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="195.0" y="555.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">Y</text>
+<rect x="214.5" y="530.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="228.1" y="555.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">U</text>
+<rect x="247.6" y="530.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="261.2" y="555.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">I</text>
+<rect x="280.7" y="530.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="294.3" y="555.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">O</text>
+<rect x="313.8" y="530.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="327.4" y="555.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">P</text>
+<rect x="346.9" y="530.0" width="27.1" height="50.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="360.5" y="555.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">Tab</text>
+<rect x="16.0" y="586.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="29.5" y="611.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">A</text>
+<rect x="49.1" y="586.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="62.6" y="611.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">S</text>
+<rect x="82.2" y="586.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="95.7" y="611.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">D</text>
+<rect x="115.3" y="586.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="128.8" y="611.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">F</text>
+<rect x="148.4" y="586.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="161.9" y="611.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">G</text>
+<rect x="181.5" y="586.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="195.0" y="611.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">H</text>
+<rect x="214.5" y="586.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="228.1" y="611.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">J</text>
+<rect x="247.6" y="586.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="261.2" y="611.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">K</text>
+<rect x="280.7" y="586.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="294.3" y="611.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">L</text>
+<rect x="313.8" y="586.0" width="60.2" height="50.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="343.9" y="611.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">Enter</text>
+<rect x="16.0" y="642.0" width="60.2" height="50.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="46.1" y="667.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">Shift</text>
+<rect x="82.2" y="642.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="95.7" y="667.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">Z</text>
+<rect x="115.3" y="642.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="128.8" y="667.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">X</text>
+<rect x="148.4" y="642.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="161.9" y="667.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">C</text>
+<rect x="181.5" y="642.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="195.0" y="667.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">V</text>
+<rect x="214.5" y="642.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="228.1" y="667.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">B</text>
+<rect x="247.6" y="642.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="261.2" y="667.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">N</text>
+<rect x="280.7" y="642.0" width="27.1" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="294.3" y="667.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">M</text>
+<rect x="313.8" y="642.0" width="27.1" height="50.0" rx="6" fill="#34343A"/>
+<text x="327.4" y="667.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#CFCBC2" text-anchor="middle" dominant-baseline="central">↑</text>
+<rect x="346.9" y="642.0" width="27.1" height="50.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="360.5" y="667.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">Del</text>
+<rect x="16.0" y="698.0" width="43.6" height="50.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="37.8" y="723.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">Ctrl</text>
+<rect x="65.6" y="698.0" width="43.6" height="50.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="87.5" y="723.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">Alt</text>
+<rect x="115.3" y="698.0" width="159.5" height="50.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="195.0" y="723.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">Space</text>
+<rect x="280.7" y="698.0" width="27.1" height="50.0" rx="6" fill="#34343A"/>
+<text x="294.3" y="723.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#CFCBC2" text-anchor="middle" dominant-baseline="central">←</text>
+<rect x="313.8" y="698.0" width="27.1" height="50.0" rx="6" fill="#34343A"/>
+<text x="327.4" y="723.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#CFCBC2" text-anchor="middle" dominant-baseline="central">↓</text>
+<rect x="346.9" y="698.0" width="27.1" height="50.0" rx="6" fill="#34343A"/>
+<text x="360.5" y="723.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#CFCBC2" text-anchor="middle" dominant-baseline="central">→</text>
+</g>
+<text x="195.0" y="770.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="12" font-weight="400" fill="#6A665E" text-anchor="middle" dominant-baseline="central">게임 화면 터치 = 마우스 (탭: 클릭)</text>
+</svg><figcaption>모바일 키보드 · <code>mockups/mobile-keyboard.svg</code></figcaption></figure><figure class="mock wide"><svg xmlns="http://www.w3.org/2000/svg" width="100%" style="max-width:1280px;height:auto" viewBox="0 0 1280 1000" role="img" aria-label="데스크탑 - 게임패드 탭">
+<title>데스크탑 - 게임패드 탭</title>
+<rect width="1280" height="1000" fill="#1C1C1F"/>
+<rect x="260.0" y="24.0" width="96.0" height="44.0" rx="12" fill="#2C2C31"/>
+<text x="308.0" y="46.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="14" font-weight="400" fill="#E7E3DA" text-anchor="middle" dominant-baseline="central">← 목록</text>
+<text x="372.0" y="46.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="16" font-weight="600" fill="#E7E3DA" text-anchor="start" dominant-baseline="central">제4차 슈퍼로봇대전</text>
+<rect x="926.0" y="24.0" width="94.0" height="44.0" rx="12" fill="#2C2C31"/>
+<text x="973.0" y="46.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="13" font-weight="400" fill="#E7E3DA" text-anchor="middle" dominant-baseline="central">패드 숨기기</text>
+<rect x="824.0" y="24.0" width="94.0" height="44.0" rx="12" fill="#2C2C31"/>
+<text x="871.0" y="46.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="13" font-weight="400" fill="#E7E3DA" text-anchor="middle" dominant-baseline="central">퀵로드 F8</text>
+<rect x="711.0" y="24.0" width="105.0" height="44.0" rx="12" fill="#2C2C31"/>
+<text x="763.5" y="46.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="13" font-weight="400" fill="#E7E3DA" text-anchor="middle" dominant-baseline="central">퀵세이브 F5</text>
+<rect x="260.0" y="84.0" width="760.0" height="832.0" rx="28" fill="#E7E3DA"/>
+<rect x="338.0" y="104.0" width="604.0" height="554.0" rx="18" fill="#26262B"/>
+<rect x="352.0" y="118.0" width="576.0" height="504.0" rx="6" fill="#0E1116"/>
+<text x="640.0" y="358.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="14" font-weight="400" fill="#8B93A1" text-anchor="middle" dominant-baseline="central">게임 화면</text>
+<text x="640.0" y="382.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="12" font-weight="500" fill="#6B7482" text-anchor="middle" dominant-baseline="central">256 × 224 · 확대 ×2.25</text>
+<circle cx="356.0" cy="639" r="3.5" fill="#5FB37A"/>
+<text x="366.0" y="639.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="500" fill="#A8A49B" text-anchor="start" dominant-baseline="central">SNES9X</text>
+<text x="928.0" y="639.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="500" fill="#A8A49B" text-anchor="end" dominant-baseline="central">세이브 동기화됨 · 12:40</text>
+<g id="desktop-gamepad-controller-tabs">
+<rect x="280.0" y="672.0" width="720.0" height="40.0" rx="12" fill="#D8D3C8"/>
+<rect x="284.0" y="676.0" width="356.0" height="32.0" rx="9" fill="#26262B"/>
+<text x="462.0" y="692.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="13" font-weight="600" fill="#F4F1EA" text-anchor="middle" dominant-baseline="central">게임패드</text>
+<text x="818.0" y="692.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="13" font-weight="500" fill="#4A4740" text-anchor="middle" dominant-baseline="central">키보드</text>
+</g>
+<g id="desktop-gamepad-dpad">
+<rect x="360.0" y="736.0" width="40.0" height="120.0" rx="8" fill="#34343A"/>
+<rect x="320.0" y="776.0" width="120.0" height="40.0" rx="8" fill="#34343A"/>
+<path d="M380.0 749.6l6.4 9.600000000000001h-12.8z" fill="#CFCBC2"/>
+<path d="M380.0 842.4l6.4 -9.600000000000001h-12.8z" fill="#CFCBC2"/>
+<path d="M333.6 796.0l9.600000000000001 6.4v-12.8z" fill="#CFCBC2"/>
+<path d="M426.4 796.0l-9.600000000000001 6.4v-12.8z" fill="#CFCBC2"/>
+</g>
+<text x="380.0" y="870.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="500" fill="#6A665E" text-anchor="middle" dominant-baseline="central">방향키</text>
+<rect x="532.0" y="746.0" width="100.0" height="40.0" rx="20" fill="#BDB7AA"/>
+<text x="582.0" y="766.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="700" fill="#23211E" text-anchor="middle" dominant-baseline="central">L  Q</text>
+<rect x="648.0" y="746.0" width="100.0" height="40.0" rx="20" fill="#BDB7AA"/>
+<text x="698.0" y="766.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="700" fill="#23211E" text-anchor="middle" dominant-baseline="central">R  W</text>
+<rect x="532.0" y="802.0" width="100.0" height="36.0" rx="18" fill="#CFC9BD"/>
+<text x="582.0" y="820.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="700" fill="#3A3833" text-anchor="middle" dominant-baseline="central">SELECT ⇧</text>
+<rect x="648.0" y="802.0" width="100.0" height="36.0" rx="18" fill="#CFC9BD"/>
+<text x="698.0" y="820.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="700" fill="#3A3833" text-anchor="middle" dominant-baseline="central">START ↵</text>
+<g id="desktop-gamepad-abxy">
+<circle cx="894.0" cy="752.0" r="22.0" fill="#3F4A5A"/>
+<text x="894.0" y="752.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="15" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">X</text>
+<circle cx="850.0" cy="796.0" r="22.0" fill="#3F4A5A"/>
+<text x="850.0" y="796.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="15" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">Y</text>
+<circle cx="938.0" cy="796.0" r="22.0" fill="#A84C31"/>
+<text x="938.0" y="796.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="15" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">A</text>
+<circle cx="894.0" cy="840.0" r="22.0" fill="#A84C31"/>
+<text x="894.0" y="840.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="15" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">B</text>
+</g>
+<text x="894.0" y="870.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="500" fill="#6A665E" text-anchor="middle" dominant-baseline="central">A=X · B=Z · X=S · Y=A</text>
+</svg><figcaption>데스크탑 게임패드 · <code>mockups/desktop-gamepad.svg</code></figcaption></figure><figure class="mock wide"><svg xmlns="http://www.w3.org/2000/svg" width="100%" style="max-width:1280px;height:auto" viewBox="0 0 1280 1000" role="img" aria-label="데스크탑 - 키보드 탭">
+<title>데스크탑 - 키보드 탭</title>
+<rect width="1280" height="1000" fill="#1C1C1F"/>
+<rect x="260.0" y="24.0" width="96.0" height="44.0" rx="12" fill="#2C2C31"/>
+<text x="308.0" y="46.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="14" font-weight="400" fill="#E7E3DA" text-anchor="middle" dominant-baseline="central">← 목록</text>
+<text x="372.0" y="46.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="16" font-weight="600" fill="#E7E3DA" text-anchor="start" dominant-baseline="central">[DOS 게임 제목]</text>
+<rect x="926.0" y="24.0" width="94.0" height="44.0" rx="12" fill="#2C2C31"/>
+<text x="973.0" y="46.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="13" font-weight="400" fill="#E7E3DA" text-anchor="middle" dominant-baseline="central">패드 숨기기</text>
+<rect x="824.0" y="24.0" width="94.0" height="44.0" rx="12" fill="#2C2C31"/>
+<text x="871.0" y="46.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="13" font-weight="400" fill="#E7E3DA" text-anchor="middle" dominant-baseline="central">퀵로드 F8</text>
+<rect x="711.0" y="24.0" width="105.0" height="44.0" rx="12" fill="#2C2C31"/>
+<text x="763.5" y="46.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="13" font-weight="400" fill="#E7E3DA" text-anchor="middle" dominant-baseline="central">퀵세이브 F5</text>
+<rect x="260.0" y="84.0" width="760.0" height="900.0" rx="28" fill="#E7E3DA"/>
+<rect x="338.0" y="104.0" width="604.0" height="482.0" rx="18" fill="#26262B"/>
+<rect x="352.0" y="118.0" width="576.0" height="432.0" rx="6" fill="#0E1116"/>
+<text x="640.0" y="322.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="14" font-weight="400" fill="#8B93A1" text-anchor="middle" dominant-baseline="central">게임 화면</text>
+<text x="640.0" y="346.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="12" font-weight="500" fill="#6B7482" text-anchor="middle" dominant-baseline="central">320 × 200 · 4:3 · 확대 ×1.8</text>
+<circle cx="356.0" cy="567" r="3.5" fill="#5FB37A"/>
+<text x="366.0" y="567.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="500" fill="#A8A49B" text-anchor="start" dominant-baseline="central">DOSBOX-X</text>
+<text x="928.0" y="567.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="500" fill="#A8A49B" text-anchor="end" dominant-baseline="central">세이브 동기화됨 · 12:40</text>
+<g id="desktop-keyboard-controller-tabs">
+<rect x="280.0" y="600.0" width="720.0" height="40.0" rx="12" fill="#D8D3C8"/>
+<text x="462.0" y="620.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="13" font-weight="500" fill="#4A4740" text-anchor="middle" dominant-baseline="central">게임패드</text>
+<rect x="640.0" y="604.0" width="356.0" height="32.0" rx="9" fill="#26262B"/>
+<text x="818.0" y="620.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="13" font-weight="600" fill="#F4F1EA" text-anchor="middle" dominant-baseline="central">키보드</text>
+</g>
+<g id="desktop-keyboard-keyboard">
+<rect x="300.0" y="656.0" width="56.4" height="34.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="328.2" y="673.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">Esc</text>
+<rect x="362.4" y="656.0" width="56.4" height="34.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="390.5" y="673.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="12" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">F1</text>
+<rect x="424.7" y="656.0" width="56.4" height="34.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="452.9" y="673.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="12" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">F2</text>
+<rect x="487.1" y="656.0" width="56.4" height="34.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="515.3" y="673.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="12" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">F3</text>
+<rect x="549.5" y="656.0" width="56.4" height="34.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="577.6" y="673.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="12" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">F4</text>
+<rect x="611.8" y="656.0" width="56.4" height="34.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="640.0" y="673.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="12" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">F5</text>
+<rect x="674.2" y="656.0" width="56.4" height="34.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="702.4" y="673.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="12" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">F6</text>
+<rect x="736.5" y="656.0" width="56.4" height="34.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="764.7" y="673.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="12" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">F7</text>
+<rect x="798.9" y="656.0" width="56.4" height="34.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="827.1" y="673.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="12" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">F8</text>
+<rect x="861.3" y="656.0" width="56.4" height="34.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="889.5" y="673.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="12" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">F9</text>
+<rect x="923.6" y="656.0" width="56.4" height="34.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="951.8" y="673.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">F10</text>
+<rect x="300.0" y="696.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="328.2" y="718.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">1</text>
+<rect x="362.4" y="696.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="390.5" y="718.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">2</text>
+<rect x="424.7" y="696.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="452.9" y="718.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">3</text>
+<rect x="487.1" y="696.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="515.3" y="718.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">4</text>
+<rect x="549.5" y="696.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="577.6" y="718.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">5</text>
+<rect x="611.8" y="696.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="640.0" y="718.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">6</text>
+<rect x="674.2" y="696.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="702.4" y="718.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">7</text>
+<rect x="736.5" y="696.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="764.7" y="718.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">8</text>
+<rect x="798.9" y="696.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="827.1" y="718.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">9</text>
+<rect x="861.3" y="696.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="889.5" y="718.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">0</text>
+<rect x="923.6" y="696.0" width="56.4" height="44.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="951.8" y="718.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">⌫</text>
+<rect x="300.0" y="746.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="328.2" y="768.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">Q</text>
+<rect x="362.4" y="746.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="390.5" y="768.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">W</text>
+<rect x="424.7" y="746.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="452.9" y="768.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">E</text>
+<rect x="487.1" y="746.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="515.3" y="768.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">R</text>
+<rect x="549.5" y="746.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="577.6" y="768.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">T</text>
+<rect x="611.8" y="746.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="640.0" y="768.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">Y</text>
+<rect x="674.2" y="746.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="702.4" y="768.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">U</text>
+<rect x="736.5" y="746.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="764.7" y="768.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">I</text>
+<rect x="798.9" y="746.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="827.1" y="768.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">O</text>
+<rect x="861.3" y="746.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="889.5" y="768.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">P</text>
+<rect x="923.6" y="746.0" width="56.4" height="44.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="951.8" y="768.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">Tab</text>
+<rect x="300.0" y="796.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="328.2" y="818.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">A</text>
+<rect x="362.4" y="796.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="390.5" y="818.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">S</text>
+<rect x="424.7" y="796.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="452.9" y="818.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">D</text>
+<rect x="487.1" y="796.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="515.3" y="818.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">F</text>
+<rect x="549.5" y="796.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="577.6" y="818.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">G</text>
+<rect x="611.8" y="796.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="640.0" y="818.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">H</text>
+<rect x="674.2" y="796.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="702.4" y="818.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">J</text>
+<rect x="736.5" y="796.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="764.7" y="818.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">K</text>
+<rect x="798.9" y="796.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="827.1" y="818.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">L</text>
+<rect x="861.3" y="796.0" width="118.7" height="44.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="920.6" y="818.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">Enter</text>
+<rect x="300.0" y="846.0" width="118.7" height="44.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="359.4" y="868.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">Shift</text>
+<rect x="424.7" y="846.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="452.9" y="868.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">Z</text>
+<rect x="487.1" y="846.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="515.3" y="868.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">X</text>
+<rect x="549.5" y="846.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="577.6" y="868.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">C</text>
+<rect x="611.8" y="846.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="640.0" y="868.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">V</text>
+<rect x="674.2" y="846.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="702.4" y="868.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">B</text>
+<rect x="736.5" y="846.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="764.7" y="868.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">N</text>
+<rect x="798.9" y="846.0" width="56.4" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="827.1" y="868.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">M</text>
+<rect x="861.3" y="846.0" width="56.4" height="44.0" rx="6" fill="#34343A"/>
+<text x="889.5" y="868.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#CFCBC2" text-anchor="middle" dominant-baseline="central">↑</text>
+<rect x="923.6" y="846.0" width="56.4" height="44.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="951.8" y="868.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">Del</text>
+<rect x="300.0" y="896.0" width="87.5" height="44.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="343.8" y="918.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">Ctrl</text>
+<rect x="393.5" y="896.0" width="87.5" height="44.0" rx="6" fill="#D8D3C8" stroke="#C9C3B6" stroke-width="1"/>
+<text x="437.3" y="918.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">Alt</text>
+<rect x="487.1" y="896.0" width="305.8" height="44.0" rx="6" fill="#F7F5F0" stroke="#C9C3B6" stroke-width="1"/>
+<text x="640.0" y="918.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="11" font-weight="600" fill="#23211E" text-anchor="middle" dominant-baseline="central">Space</text>
+<rect x="798.9" y="896.0" width="56.4" height="44.0" rx="6" fill="#34343A"/>
+<text x="827.1" y="918.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#CFCBC2" text-anchor="middle" dominant-baseline="central">←</text>
+<rect x="861.3" y="896.0" width="56.4" height="44.0" rx="6" fill="#34343A"/>
+<text x="889.5" y="918.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#CFCBC2" text-anchor="middle" dominant-baseline="central">↓</text>
+<rect x="923.6" y="896.0" width="56.4" height="44.0" rx="6" fill="#34343A"/>
+<text x="951.8" y="918.0" font-family="'JetBrains Mono','D2Coding',Consolas,monospace" font-size="14" font-weight="600" fill="#CFCBC2" text-anchor="middle" dominant-baseline="central">→</text>
+</g>
+<text x="640.0" y="962.0" font-family="'IBM Plex Sans KR','Noto Sans KR','Apple SD Gothic Neo',sans-serif" font-size="12" font-weight="400" fill="#6A665E" text-anchor="middle" dominant-baseline="central">실제 키보드와 마우스 입력은 그대로 전달 · 화면 키보드는 터치 노트북/태블릿용</text>
+</svg><figcaption>데스크탑 키보드 · <code>mockups/desktop-keyboard.svg</code></figcaption></figure></div>
+<p>색 팔레트 (목업 기준):</p>
+<div class="table"><table><thead><tr><th>용도</th><th>색</th></tr></thead><tbody><tr><td>본체</td><td><code>#E7E3DA</code></td></tr><tr><td>보조 면</td><td><code>#D8D3C8</code></td></tr><tr><td>글자</td><td><code>#23211E</code></td></tr><tr><td>베젤</td><td><code>#26262B</code></td></tr><tr><td>화면</td><td><code>#0E1116</code></td></tr><tr><td>방향키, 방향 키캡</td><td><code>#34343A</code></td></tr><tr><td>L/R</td><td><code>#BDB7AA</code></td></tr><tr><td>SELECT/START</td><td><code>#CFC9BD</code></td></tr><tr><td>A/B</td><td><code>#A84C31</code></td></tr><tr><td>X/Y</td><td><code>#3F4A5A</code></td></tr><tr><td>일반 키캡</td><td><code>#F7F5F0</code></td></tr><tr><td>데스크탑 배경</td><td><code>#1C1C1F</code></td></tr></tbody></table></div>
+<h2>9. 작업 순서 (제안)</h2>
+<ol><li><strong>사전 확인:</strong> 로그인 세션 위치와 구현 방식, <code>mime.types</code>의 wasm 항목, PHP 업로드 한도, js-dos self-host 가능 여부.</li><li><strong>뼈대:</strong> <code>/srv/emu</code> 디렉터리와 권한, nginx location(internal, COOP/COEP, 캐시), <code>rom.php</code>(세션 확인 + X-Accel-Redirect).</li><li><strong>SFC 1개 구동:</strong> EmulatorJS self-host + snes9x로 제4차 슈로대(한글패치 적용본)를 PC와 폰에서 실행.</li><li><strong>세이브:</strong> IndexedDB 저장, 서버 백업과 버전 관리, 충돌 처리(409).</li><li><strong>UI:</strong> 목업대로 컨트롤러와 탭, 빨리감기, 퀵세이브/퀵로드, 동기화 표시.</li><li><strong>DOS:</strong> js-dos + DOSBox-X, 키보드 탭, 터치를 마우스로 쓰는 처리. DOS 게임 리스트가 정해진 뒤에.</li><li><strong>게임 목록 페이지:</strong> 게임 카드, 마지막 플레이 시각, 세이브 상태.</li></ol>
+<h2>10. <span class="tag">미확인</span> 항목 모음</h2>
+<ul><li class="check"><input type="checkbox" disabled> 로그인 세션이 있는 사이트(hm/api/pt)와 세션 구현 방식</li><li class="check"><input type="checkbox" disabled> js-dos: 외부 서비스 없이 self-host 가능한지, 세이브 저장 위치 설정, 변경된 파일을 꺼내는 API, 터치를 마우스로 처리하는 방식</li><li class="check"><input type="checkbox" disabled> EmulatorJS: 라이선스, 세이브 이벤트 콜백, SRAM/스테이트 입출력 API, DOS 코어 지원 여부</li><li class="check"><input type="checkbox" disabled> nginx <code>mime.types</code>의 wasm 항목</li><li class="check"><input type="checkbox" disabled> PHP <code>upload_max_filesize</code> / <code>post_max_size</code> 현재 값</li><li class="check"><input type="checkbox" disabled> 제4차 슈로대 리뉴얼 패치(v1.01)의 대상 원본 ROM 판본</li><li class="check"><input type="checkbox" disabled> 프론트 미션 한글패치의 최신판과 알려진 문제가 고쳐졌는지</li><li class="check"><input type="checkbox" disabled> SFC 게임들의 특수칩 유무 (ROM 헤더로 확인)</li><li class="check"><input type="checkbox" disabled> DOSBox-X 세이브 스테이트가 브라우저에서 안정적인지</li><li class="check"><input type="checkbox" disabled> 집 인터넷 회선의 업로드 속도 (외부에서 접속할 때 대용량 DOS 번들을 처음 받는 시간에 영향)</li></ul>
+</main>
+</body>
+</html>
