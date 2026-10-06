@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>kwonmo.net 시안 4</title>
+<meta name="description" content="자유안 · 서고 — 홈페이지의 형제, 웹하드만의 정체성 — 서고·카드함·보존 상자.">
+<link rel="icon" href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%20%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2210%22%20fill%3D%22%232e5a46%22%2F%3E%20%3Crect%20x%3D%229%22%20y%3D%227%22%20width%3D%2246%22%20height%3D%2232%22%20rx%3D%222%22%20fill%3D%22%23f8f8f3%22%20stroke%3D%22%23c9a45c%22%20stroke-width%3D%224%22%2F%3E%20%3Cpath%20d%3D%22M25%2012.5V33.5M25%2027L37%2016.5M30%2023.5L38.5%2033.5%22%20fill%3D%22none%22%20stroke%3D%22%232e5a46%22%20stroke-width%3D%225%22%20stroke-linecap%3D%22square%22%2F%3E%20%3Cpath%20d%3D%22M19%2046V54H45V46%22%20fill%3D%22none%22%20stroke%3D%22%23c9a45c%22%20stroke-width%3D%225.5%22%20stroke-linejoin%3D%22round%22%2F%3E%20%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&amp;family=IBM+Plex+Sans+KR:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>
+:root{--c-bg:#e7ebe4;--c-fg:#1d2a23;--c-mid:#4d5a52;--c-line:#cfd6cc;--c-accent:#a8762a;--c-panel:#f8f8f3;--c-head:'Gowun Batang',serif;--c-body:'IBM Plex Sans KR',sans-serif;--c-radius:3px;--c-topline:3px solid #a8762a}
+:root[data-theme="dark"]{--c-bg:#0f1613;--c-fg:#e3e0d3;--c-mid:#a7ad9f;--c-line:#2a3830;--c-accent:#d1a85a;--c-panel:#16201b;--c-topline:3px solid #d1a85a}
+
+
+:root{color-scheme:light}
+:root[data-theme="dark"]{color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--c-bg);color:var(--c-fg);font-family:var(--c-body);line-height:1.65;-webkit-text-size-adjust:100%}
+a{color:var(--c-accent)}
+.wrap{max-width:1360px;margin:0 auto;padding:0 16px}
+.topbar{position:sticky;top:0;z-index:50;background:var(--c-bg);border-bottom:var(--c-topline)}
+.topbar .wrap{display:flex;align-items:center;gap:16px;min-height:56px;flex-wrap:wrap;padding-top:6px;padding-bottom:6px}
+.brand{font-family:var(--c-head);font-weight:700;font-size:15px;letter-spacing:.02em;margin-right:auto}
+.brand small{display:block;font-family:var(--c-body);font-weight:400;font-size:12px;color:var(--c-mid);letter-spacing:0}
+.seg{display:inline-flex;border:1px solid var(--c-line);border-radius:var(--c-radius);overflow:hidden}
+.seg a,.seg button{appearance:none;border:0;background:none;color:var(--c-mid);font:inherit;font-size:13px;padding:6px 12px;cursor:pointer;text-decoration:none;line-height:1.4}
+.seg a+a,.seg button+button{border-left:1px solid var(--c-line)}
+.seg [aria-current="page"],.seg [aria-pressed="true"]{background:var(--c-fg);color:var(--c-bg)}
+.hero{padding:40px 0 8px}
+.kicker{font-size:13px;letter-spacing:.18em;color:var(--c-accent);font-weight:700}
+h1.title{font-family:var(--c-head);font-size:clamp(30px,5vw,52px);line-height:1.1;margin:.2em 0 .35em;letter-spacing:-.01em}
+.lede{max-width:760px;font-size:17px;color:var(--c-mid);margin:0}
+.traits{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:24px 0 0;padding:0;list-style:none}
+.traits li{border-top:2px solid var(--c-fg);padding:10px 2px 0;font-size:14px;color:var(--c-mid)}
+.traits b{display:block;color:var(--c-fg);font-family:var(--c-head);font-size:15px;margin-bottom:2px}
+section.screen{padding:36px 0 8px}
+.sec-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--c-line);padding-bottom:8px;margin-bottom:14px}
+.sec-h h2{font-family:var(--c-head);font-size:22px;margin:0}
+.sec-h .num{font-family:var(--c-head);color:var(--c-accent);font-weight:700}
+.sec-h p{margin:0;color:var(--c-mid);font-size:14px;flex:1 1 280px}
+.stage{width:100%;overflow:hidden;border:1px solid var(--c-line);border-radius:var(--c-radius);box-shadow:0 1px 0 var(--c-line)}
+.stage .fb{transform-origin:0 0}
+.duo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:28px;align-items:start}
+.duo .stage{max-width:390px}
+@media (max-width:860px){.duo{grid-template-columns:1fr}}
+.logo-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.tile{border:1px solid var(--c-line);border-radius:var(--c-radius);padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:170px}
+.tile.light{background:#f4f1ea;color:#333}.tile.dark{background:#121418;color:#ccc}
+.tile .cap{font-size:12px;letter-spacing:.06em;opacity:.8}
+.tile img{display:block}
+.favs{display:flex;gap:16px;align-items:flex-end}
+.tabmock{display:flex;align-items:center;gap:8px;background:#dfe3e8;color:#222;border-radius:10px 10px 0 0;padding:8px 14px;font:13px/1 system-ui,sans-serif;width:max-content;max-width:100%}
+.tile.dark .tabmock{background:#2b2f36;color:#ddd}
+.code-h{display:flex;align-items:center;gap:8px;margin:16px 0 6px;flex-wrap:wrap}
+.code-h b{font-family:var(--c-head);font-size:14px;margin-right:auto}
+.btn{appearance:none;border:1px solid var(--c-line);background:var(--c-panel);color:var(--c-fg);font:inherit;font-size:12px;padding:4px 10px;border-radius:var(--c-radius);cursor:pointer}
+.btn:hover{border-color:var(--c-accent);color:var(--c-accent)}
+pre{margin:0;background:var(--c-panel);border:1px solid var(--c-line);border-radius:var(--c-radius);padding:12px 14px;
+  font:12px/1.55 "JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;overflow:auto;max-height:340px;white-space:pre;color:var(--c-fg)}
+.memo{padding:40px 0 64px}
+.memo h3{font-family:var(--c-head);font-size:17px;margin:28px 0 8px}
+.memo p,.memo li{font-size:14.5px}
+.memo ul{padding-left:1.2em;margin:.4em 0}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--c-line);border-radius:var(--c-radius)}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:560px}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--c-line);vertical-align:middle}
+th{font-family:var(--c-head);font-weight:700;background:var(--c-panel)}
+td code,li code,p code{font:12px "JetBrains Mono",ui-monospace,monospace}
+.sw{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid rgba(127,127,127,.5);vertical-align:-2px;margin-right:6px}
+.note{border-left:3px solid var(--c-accent);padding:8px 12px;background:var(--c-panel);font-size:14px;margin:10px 0}
+.sub-seg{margin-left:auto}
+footer{border-top:1px solid var(--c-line);padding:18px 0 40px;font-size:13px;color:var(--c-mid)}
+
+/* ===== 순정 File Browser 근사 (목업 프레임 전용) ===== */
+
+.fb{
+--blue:#2196f3;--dark-blue:#1e88e5;--red:#f44336;--dark-red:#d32f2f;--moon-grey:#f2f2f2;
+--icon-red:#da4453;--icon-orange:#f47750;--icon-yellow:#fdbc4b;--icon-green:#2ecc71;--icon-blue:#1d99f3;--icon-violet:#9b59b6;
+--input-red:rgb(252,208,205);--input-green:rgb(201,242,218);--item-selected:white;--action:rgb(84,110,122);
+--background:rgb(250,250,250);--surfacePrimary:rgb(255,255,255);--surfaceSecondary:rgb(230,230,230);
+--divider:rgba(0,0,0,.05);--iconPrimary:var(--icon-blue);--iconSecondary:rgb(255,255,255);--iconTertiary:rgb(204,204,204);
+--textPrimary:rgb(111,111,111);--textSecondary:rgb(51,51,51);--hover:rgba(0,0,0,.1);
+--borderPrimary:rgba(0,0,0,.1);--borderSecondary:rgba(0,0,0,.2);
+}
+.fb.dark{
+--input-red:rgb(115,48,45);--input-green:rgb(20,122,65);--action:rgb(255,255,255);
+--background:rgb(20,29,36);--surfacePrimary:rgb(32,41,47);--surfaceSecondary:rgb(58,65,71);
+--textPrimary:rgba(255,255,255,.6);--textSecondary:rgba(255,255,255,.87);--divider:rgba(255,255,255,.12);
+--iconPrimary:rgb(255,255,255);--iconSecondary:rgb(255,255,255);--iconTertiary:rgb(255,255,255);
+--hover:rgba(255,255,255,.1);--borderPrimary:rgba(255,255,255,.05);--borderSecondary:rgba(255,255,255,.15);
+}
+.fb{position:relative;overflow:hidden;font-family:"Roboto",sans-serif;font-size:16px;line-height:1.15;
+  background:var(--background);color:var(--textSecondary);padding-top:4em;padding-bottom:1.5em;text-align:left;min-height:760px}
+.fb *,.fb *::before,.fb *::after{box-sizing:border-box}
+.fb p,.fb h1,.fb h2{margin:0}
+.fb a{color:inherit;text-decoration:none;cursor:pointer}
+.fb input,.fb button{font-family:inherit;font-size:inherit;line-height:inherit}
+.fb input:focus{outline:0}
+.fb .action{display:inline-block;cursor:pointer;transition:.2s ease all;border:0;margin:0;color:var(--action);
+  border-radius:50%;background:none;padding:0;vertical-align:middle;text-align:left;position:relative}
+.fb .action:hover{background-color:var(--hover)}
+.fb .action i{padding:.4em;transition:.1s ease-in-out all;border-radius:50%}
+/* header */
+.fb header{z-index:1000;background:var(--surfacePrimary);border-bottom:1px solid var(--divider);
+  box-shadow:0 0 5px var(--borderPrimary);position:absolute;top:0;left:0;height:4em;width:100%;
+  display:flex;padding:.5em .5em .5em 1em;align-items:center}
+.fb header>*{flex:0 0 auto}
+.fb header .grow{flex:1 1 auto}
+.fb header img{height:2.5em;margin-right:1em}
+.fb header .action span{display:none}
+.fb header .search-button,.fb header .menu-button,.fb #more{display:none}
+.fb #dropdown,.fb #dropdown>div{display:flex;align-items:center}
+.fb #search{position:relative;height:100%;width:100%;max-width:25em}
+.fb #search #input{background:var(--surfaceSecondary);display:flex;height:100%;padding:0 .75em;border-radius:.3em;align-items:center}
+.fb #search #input>i{margin-right:.3em;user-select:none}
+.fb #search input{width:100%;border:0;background-color:transparent;padding:0;color:var(--textSecondary)}
+.fb #search #input input::placeholder{color:var(--textSecondary)}
+/* nav */
+.fb nav{width:16em;position:absolute;top:4em;left:0;bottom:0;overflow:hidden}
+.fb nav .action{width:100%;display:block;border-radius:0;font-size:1.1em;padding:.5em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fb nav .action>*{vertical-align:middle}
+.fb nav>div{border-top:1px solid var(--divider)}
+.fb .credits{font-size:.6em;margin:3em 2.5em;color:var(--textPrimary)}
+.fb .credits>span{display:block;margin:.3em 0}
+/* main */
+.fb main{min-height:1em;margin:0 1em 1em auto;width:calc(100% - 19em);display:block}
+.fb .breadcrumbs{height:3em;background:var(--background);border-bottom:1px solid var(--divider);position:relative;z-index:5}
+.fb .breadcrumbs span,.fb .breadcrumbs{display:flex;align-items:center;color:var(--textPrimary)}
+.fb .breadcrumbs a{color:inherit;transition:.1s ease-in;border-radius:.125em;display:flex;align-items:center}
+.fb .breadcrumbs a:hover{background-color:var(--divider)}
+.fb .breadcrumbs span a{padding:.2em}
+/* listing (listing.css) */
+.fb #listing h2{margin:0 0 0 .5em;font-size:.9em;color:var(--textPrimary);font-weight:500}
+.fb #listing .item div:last-of-type *{text-overflow:ellipsis;overflow:hidden}
+.fb #listing>div{display:flex;flex-wrap:wrap;justify-content:flex-start}
+.fb #listing .item{background:var(--surfacePrimary);border-color:var(--divider);position:relative;display:flex;flex-wrap:nowrap;
+  color:var(--textPrimary);transition:.1s ease background,.1s ease opacity;align-items:center;cursor:pointer;user-select:none}
+.fb #listing .item div:last-of-type{text-overflow:ellipsis;white-space:nowrap;overflow:hidden}
+.fb #listing .item .size,.fb #listing .item .modified{font-size:.9em}
+.fb #listing .item .name{font-weight:bold}
+.fb #listing .item i{font-size:4em;margin-right:.1em;vertical-align:bottom}
+.fb #listing .item img{width:4em;height:4em;object-fit:cover;margin-right:.1em;vertical-align:bottom;display:block}
+.fb #listing.mosaic{padding-top:1em;margin:0 -.5em}
+.fb #listing.mosaic .item{width:calc(33% - 1em);margin:.5em;padding:.5em;border-radius:.2em;
+  box-shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.12)}
+.fb #listing.mosaic .item:hover{box-shadow:0 1px 3px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.24)!important}
+.fb #listing.mosaic .header{display:none}
+.fb #listing.mosaic .item div:first-of-type{width:5em}
+.fb #listing.mosaic .item div:last-of-type{width:calc(100% - 5vw)}
+.fb #listing.mosaic.gallery .item div:first-of-type{width:100%;height:12em}
+.fb #listing.mosaic.gallery .item div:last-of-type{position:absolute;bottom:.5em;padding:1em;width:calc(100% - 1em);text-align:center}
+.fb #listing.mosaic.gallery .item[data-type="image"] div:last-of-type{color:white;background:linear-gradient(#0000,#0009)}
+.fb #listing.mosaic.gallery .item i{width:100%;margin-right:0;font-size:8em;text-align:center}
+.fb #listing.mosaic.gallery .item img{width:100%;height:100%}
+.fb #listing.gallery .size,.fb #listing.gallery .modified{display:none}
+.fb #listing.list{flex-direction:column;width:100%;max-width:100%;margin:0}
+.fb #listing.list .item{width:100%;margin:0;border:1px solid var(--borderPrimary);padding:1em;border-top:0}
+.fb #listing.list h2{display:none}
+.fb #listing .item[aria-selected="true"]{background:var(--blue)!important;color:var(--iconSecondary)!important}
+.fb #listing.list .item div:first-of-type{width:3em;flex:none}
+.fb #listing.list .item div:first-of-type i{font-size:2em}
+.fb #listing.list .item div:first-of-type img{width:2em;height:2em}
+.fb #listing.list .item div:last-of-type{width:calc(100% - 3em);display:flex;align-items:center}
+.fb #listing.list .item .name{width:50%}
+.fb #listing.list .item .size{width:25%}
+.fb #listing .item.header{display:none!important;background-color:var(--iconTertiary)}
+.fb #listing.list .item.header{display:flex!important;background:var(--background);z-index:999;padding:.85em 1em;border:0;border-bottom:1px solid var(--borderPrimary)}
+.fb #listing.list .header i{font-size:1.5em;vertical-align:middle;margin-left:.2em;opacity:0}
+.fb #listing.list .header .active i{opacity:1}
+.fb #listing.list .item.header .active{font-weight:bold}
+.fb #listing.list .name{font-weight:normal;word-wrap:break-word;white-space:pre-wrap}
+.fb #listing.list .header span{vertical-align:middle}
+.fb #multiple-selection{display:none}
+/* listing-icons.css (발췌) */
+.fb .file-icons [data-type="image"] i::before{content:"image"}
+.fb .file-icons [data-type="pdf"] i::before{content:"description"}
+.fb .file-icons [data-type="video"] i::before{content:"movie"}
+.fb .file-icons [data-type="blob"] i::before{content:"insert_drive_file"}
+.fb .file-icons [data-ext=".zip"] i::before{content:"folder_zip"}
+.fb .file-icons [data-type="image"] i{color:var(--icon-orange)}
+.fb .file-icons [data-type="video"] i{color:var(--icon-violet)}
+.fb .file-icons [data-ext=".pdf"] i{color:var(--icon-red)}
+.fb .file-icons [data-ext=".zip"] i{color:var(--icon-yellow)}
+.fb .file-icons [data-dir="true"] i{color:var(--icon-blue)}
+.fb .file-icons [data-dir="true"] i::before{content:"folder"}
+.fb .file-icons [aria-selected="true"] i{color:var(--iconSecondary)}
+/* login.css + _inputs/_buttons */
+.fb.login-frame{padding:0;min-height:0;height:640px}
+.fb #login{background:var(--surfacePrimary);position:absolute;inset:0}
+.fb #login form{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);max-width:16em;width:90%}
+.fb #login img{width:4em;height:4em;margin:0 auto;display:block}
+.fb #login h1{text-align:center;font-size:2.5em;margin:.4em 0 .67em}
+.fb .input{border-radius:.1em;padding:.5em 1em;background:var(--surfacePrimary);border:1px solid var(--borderPrimary);
+  transition:.2s ease all;color:var(--textSecondary);margin:0}
+.fb .input--block{margin-bottom:.5em;display:block;width:100%}
+.fb .button{outline:0;border:0;padding:.5em 1em;border-radius:.1em;cursor:pointer;background:var(--blue);color:white;
+  border:1px solid rgba(0,0,0,.05);box-shadow:0 0 5px rgba(0,0,0,.05);transition:.1s ease all}
+.fb .button--block{margin:0 0 .5em;display:block;width:100%}
+/* mobile.css (max-width 736px / 450px) → 폰 프레임 */
+.fb.phone{min-height:780px}
+.fb.phone nav{display:none}
+.fb.phone header .search-button,.fb.phone header .menu-button,.fb.phone #more{display:inherit}
+.fb.phone header img,.fb.phone #search,.fb.phone #dropdown{display:none}
+.fb.phone main{margin:0 1em;width:calc(100% - 2em)}
+.fb.phone #listing.list .item:not(.header) .size,.fb.phone #listing.list .item:not(.header) .modified{display:none}
+.fb.phone #listing.list .item:not(.header) .name{width:100%}
+.fb.phone #listing.list .item.header{padding:.75em .5em}
+.fb.phone #listing.list .item.header .name{width:34%;margin-right:0}
+.fb.phone #listing.list .item.header .size{width:24%}
+.fb.phone #listing.list .item.header .modified{width:42%}
+.fb.phone #listing.list .item.header p{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ===== 시안 4 custom.css → .fb 스코프 ===== */
+.fb{--background: #e7ebe4;
+  --surfacePrimary: #f8f8f3;
+  --surfaceSecondary: #dfe5dc;
+  --textPrimary: #4d5a52;
+  --textSecondary: #1d2a23;
+  --divider: #cfd6cc;
+  --hover: rgba(46,90,70,.07);
+  --borderPrimary: #cfd6cc;
+  --borderSecondary: #b4bfb3;
+  --action: #2e5a46;
+  --blue: #2e5a46;
+  --dark-blue: #234737;
+  --red: #b04030;
+  --dark-red: #8e3326;
+  --iconPrimary: #2e5a46;
+  --iconSecondary: #f8f8f3;
+  --iconTertiary: #7f8a82;
+  --icon-blue: #2e5a46;
+  --icon-orange: #a8762a;
+  --icon-red: #b04030;
+  --icon-yellow: #8a7a4a;
+  --icon-violet: #5d5a7e;
+  --icon-green: #2e5a46;}
+.fb.dark{--background: #0f1613;
+  --surfacePrimary: #16201b;
+  --surfaceSecondary: #1d2a23;
+  --textPrimary: #a7ad9f;
+  --textSecondary: #e3e0d3;
+  --divider: #2a3830;
+  --hover: rgba(209,168,90,.08);
+  --borderPrimary: #2a3830;
+  --borderSecondary: #3a4a40;
+  --action: #d1a85a;
+  --blue: #7fb39a;
+  --dark-blue: #6a9c84;
+  --red: #e07a64;
+  --dark-red: #c4644f;
+  --iconPrimary: #7fb39a;
+  --iconSecondary: #0f1613;
+  --iconTertiary: #78806f;
+  --icon-blue: #7fb39a;
+  --icon-orange: #d1a85a;
+  --icon-red: #e07a64;
+  --icon-yellow: #bfae7a;
+  --icon-violet: #a9a3cf;
+  --icon-green: #7fb39a;}
+.fb{--green: #2e5a46; --brass: #a8762a; --dim: #7f8a82; --line: #cfd6cc;
+  --bar: #2e5a46; --bar-ink: #eef1e8; --card: #fbfaf5; --ruling: rgba(46,90,70,.11); --card-rule: #c0574a;
+  --serif: "Gowun Batang", serif;
+  --sans: "IBM Plex Sans KR", sans-serif;
+  --mono: "IBM Plex Mono", "IBM Plex Sans KR", monospace;}
+.fb.dark{--green: #7fb39a; --brass: #d1a85a; --dim: #78806f; --line: #2a3830;
+  --bar: #16201b; --bar-ink: #e3e0d3; --card: #1a2620; --ruling: rgba(127,179,154,.09); --card-rule: #e07a64;}
+.fb{font-family: var(--sans);}
+.fb header{background: var(--bar); border-bottom: 3px solid var(--brass); box-shadow: none;}
+.fb header .action{color: var(--bar-ink);}
+.fb header .action i{border-radius: 4px;}
+.fb #search #input{background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.16); border-radius: 4px; color: var(--bar-ink);}
+.fb #search #input > i{color: var(--brass);}
+.fb #search input,.fb #search #input input::placeholder{color: var(--bar-ink); opacity: .85;}
+.fb nav{background: var(--surfacePrimary); border-right: 1px solid var(--line);}
+.fb nav .action{font-size: 1em; padding: .6em 1.4em; color: var(--textSecondary);}
+.fb nav .action i{color: var(--brass); font-size: 1.2em; margin-right: .55em;}
+.fb nav .action:hover{background: var(--surfaceSecondary);}
+.fb nav > .action:first-child{font-family: var(--serif); font-weight: 700; color: var(--green);}
+.fb nav > .action:first-child span::before{content: "열람자 "; font-family: var(--sans); font-weight: 400; font-size: .75em; color: var(--dim);}
+.fb nav > div{border-top: 1px solid var(--line);}
+.fb .credits{font-family: var(--mono); font-size: .66em; color: var(--dim);}
+.fb .vue-simple-progress{background: var(--surfaceSecondary) !important; border: 1px solid var(--line); border-radius: 2px !important; height: 10px !important;}
+.fb .vue-simple-progress-bar{background: linear-gradient(90deg, var(--green) calc(100% - 2px), var(--brass) 0) !important; height: 100% !important;}
+.fb .breadcrumbs{font-family: var(--serif); font-size: 1.05em; border-bottom: 1px solid var(--line);}
+.fb .breadcrumbs::before{content: "소장 위치"; font-family: var(--mono); font-size: .62em; color: var(--brass); border: 1px solid currentColor; border-radius: 2px; padding: .1em .45em; margin-right: .7em;}
+.fb .breadcrumbs > a i{color: var(--green);}
+.fb .breadcrumbs .chevron i{color: var(--brass);}
+.fb .breadcrumbs span a{color: var(--textSecondary); font-weight: 700;}
+.fb #listing{counter-reset: shelf doc;}
+.fb #listing .item[data-dir="true"]{counter-increment: shelf;}
+.fb #listing .item[data-dir="false"]{counter-increment: doc;}
+.fb #listing .item .name::before{font-family: var(--mono); font-size: .7em; font-weight: 500; color: var(--brass); border: 1px solid currentColor; border-radius: 2px; padding: .05em .4em; margin-right: .8em; vertical-align: .15em;}
+.fb #listing .item[data-dir="true"] .name::before{content: "서가 " counter(shelf, decimal-leading-zero);}
+.fb #listing .item[data-dir="false"] .name::before{content: "No." counter(doc, decimal-leading-zero);}
+.fb #listing.list{margin-top: .5em;}
+.fb #listing.list .item.header{background: transparent; border: 0; border-bottom: 2px solid var(--green); padding: .7em 1em; font-family: var(--serif); color: var(--green);}
+.fb #listing.list .item{background: var(--card); border: 1px solid var(--line); border-radius: 3px; margin: 0 0 .35em; padding: .65em 1em; box-shadow: 0 1px 0 var(--line); transition: transform .15s ease, box-shadow .15s ease;}
+.fb #listing.list .item[data-dir="true"]{background: var(--surfaceSecondary); border-left: 4px solid var(--green);}
+.fb #listing.list .item .name{color: var(--textSecondary);}
+.fb #listing.list .item .size,.fb #listing.list .item .modified{font-family: var(--mono); font-size: .78em; color: var(--dim);}
+.fb #listing.list .item div:first-of-type img{border-radius: 2px; border: 2px solid var(--card); outline: 1px solid var(--line);}
+.fb #listing .item:hover{background: var(--card); box-shadow: 0 2px 8px -4px rgba(0,0,0,.3);}
+.fb #listing .item[aria-selected="true"]{background: var(--card) !important; color: var(--textSecondary) !important; border-color: var(--brass); box-shadow: inset 4px 0 0 var(--brass), 0 10px 22px -10px rgba(0,0,0,.45); transform: translateX(.9em);}
+.fb #listing.list .item[aria-selected="true"]{width: calc(100% - .9em);}
+.fb #listing .item[aria-selected="true"] .name{font-weight: 600;}
+.fb .file-icons [aria-selected="true"] i{color: var(--brass);}
+.fb #listing h2{font-family: var(--serif); font-weight: 700; font-size: 1.05em; color: var(--green); margin: 1.2em .5em .3em; padding-bottom: .25em; border-bottom: 1px solid var(--line);}
+.fb #listing.mosaic .item{background: var(--card); border: 1px solid var(--line); border-top: 6px solid var(--green); border-radius: 3px; box-shadow: 0 2px 0 var(--line) !important;}
+.fb #listing.mosaic .item[data-dir="true"]{background: var(--surfaceSecondary);}
+.fb #listing.mosaic .item:hover{border-top-color: var(--brass);}
+.fb #listing.mosaic .item .name{color: var(--textSecondary); font-size: .9em;}
+.fb #listing.mosaic.gallery .item{flex-direction: column; align-items: stretch; padding: .8em .8em 0; border-top-width: 1px;}
+.fb #listing.mosaic.gallery .item div:first-of-type{height: 10.5em;}
+.fb #listing.mosaic.gallery .item img{border: 1px solid var(--line);}
+.fb #listing.mosaic.gallery .item div:last-of-type{position: static; width: auto; padding: .65em 0 .75em; text-align: left; font-size: .85em;}
+.fb #listing.mosaic.gallery .item[data-type="image"] div:last-of-type{background: none; color: var(--textSecondary);}
+.fb #login{background: var(--background);}
+.fb #login form{max-width: 21em; padding: 2.4em 2em 3.6em; border: 1px solid var(--line); border-top: 3px solid var(--card-rule); border-radius: 3px;
+  background:
+    radial-gradient(circle at 50% calc(100% - 1.5em), var(--background) .55em, var(--line) .6em, transparent .68em),
+    repeating-linear-gradient(transparent 0 1.95em, var(--ruling) 1.95em 2em),
+    var(--card);
+  box-shadow: 0 22px 40px -24px rgba(0,0,0,.5);}
+.fb #login form::before{content: "No. 0001"; position: absolute; top: .8em; right: 1em; font-family: var(--mono); font-size: .72em; color: var(--brass);}
+.fb #login img{width: 4em; height: 4em;}
+.fb #login h1{font-family: var(--serif); font-weight: 700; font-size: 2.2em; color: var(--green); margin: .4em 0 .9em;}
+.fb #login h1::after{content: "서고 출입 · 열람증 확인"; display: block; font-family: var(--mono); font-size: .3em; font-weight: 400; letter-spacing: .12em; color: var(--brass); margin-top: .5em;}
+.fb #login .input{background: transparent; border: 0; border-bottom: 1px solid var(--green); border-radius: 0; padding: .65em .1em; color: var(--textSecondary);}
+.fb #login .input::placeholder{color: var(--dim);}
+.fb #login .input:focus{border-bottom-color: var(--brass); box-shadow: 0 1px 0 var(--brass);}
+.fb #login .button{margin-top: 1.2em; background: var(--green); color: var(--surfacePrimary); border-radius: 3px; padding: .75em; font-weight: 600; letter-spacing: .2em;}
+.fb #login .button:hover{background: var(--brass);}
+.fb.phone #listing .item[aria-selected="true"]{transform: translateX(.4em);}
+.fb.phone #listing.list .item[aria-selected="true"]{width: calc(100% - .4em);}
+.fb.phone #listing .item .name::before{font-size: .62em; margin-right: .5em;}
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="wrap">
+  <div class="brand">kwonmo.net 웹하드 외형 시안<small>File Browser 2.63.23 · CSS 브랜딩 예시</small></div>
+  <nav class="seg" aria-label="시안"><a href="kwonmo-net-design-1.html">1 조간판 계승</a><a href="kwonmo-net-design-2.html">2 야간판 계승</a><a href="kwonmo-net-design-3.html">3 두 판 연결</a><a href="kwonmo-net-design-4.html" aria-current="page">4 자유안 · 서고</a></nav>
+  <div class="seg" role="group" aria-label="테마"><button type="button" data-set-theme="light" aria-pressed="false">라이트</button><button type="button" data-set-theme="dark" aria-pressed="false">다크</button></div>
+</div></div>
+<main class="wrap">
+  <header class="hero">
+    <div class="kicker">시안 4 · 지금 보는 판: <span class="theme-name" data-light="주간 열람실" data-dark="야간 서고"></span></div>
+    <h1 class="title">자유안 · 서고</h1>
+    <p class="lede">홈페이지가 ‘신문’이라면 웹하드는 그 신문을 철해 두는 ‘서고’다. 짙은 녹색 간판에 황동 선, 목록은 카드함 — 한 줄이 색인 카드 한 장이고, 폴더는 서가 번호, 파일은 문서 번호를 CSS 카운터로 찍는다. 선택한 줄은 반쯤 꺼낸 카드처럼 옆으로 밀려 나온다. 격자는 보존 상자, 사진은 매트 액자, 로그인은 열람 카드.</p>
+    <ul class="traits"><li><b>청구기호</b>CSS counter 로 ‘서가 01’, ‘No.04’를 이름 앞에. 마크업 추가 없음.</li><li><b>꺼낸 카드</b>선택 줄은 황동 테두리 + 그림자 + 오른쪽으로 0.9em 이동.</li><li><b>보존 상자 · 액자</b>격자 보기 상자 뚜껑 띠, 사진 보기 매트 여백과 아래 캡션.</li><li><b>열람 카드</b>로그인 폼에 붉은 머리선·괘선·아래 구멍 (그라데이션 세 겹).</li></ul>
+  </header>
+
+  <section class="screen">
+    <div class="sec-h"><span class="num">①</span><h2>파일 목록 · 목록 보기</h2>
+      <p>폴더 3 · 파일 6, <b>2026_사업계획서.pdf</b> 한 줄 선택 상태. 선택이 있으면 상단에 공유·이름 바꾸기·복사·이동·삭제 아이콘이 함께 뜬다(순정 동작).</p></div>
+    <div class="stage"><div class="fb" data-w="1280" id="frame-list" style="width:1280px"><header><img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%20%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%2260%22%20height%3D%2260%22%20rx%3D%227%22%20fill%3D%22%232e5a46%22%2F%3E%20%3Crect%20x%3D%226.5%22%20y%3D%226.5%22%20width%3D%2251%22%20height%3D%2251%22%20rx%3D%224%22%20fill%3D%22none%22%20stroke%3D%22%23244a39%22%20stroke-width%3D%222%22%2F%3E%20%3Crect%20x%3D%2213%22%20y%3D%2211%22%20width%3D%2238%22%20height%3D%2227%22%20rx%3D%222%22%20fill%3D%22%23c9a45c%22%2F%3E%20%3Crect%20x%3D%2216%22%20y%3D%2214%22%20width%3D%2232%22%20height%3D%2221%22%20fill%3D%22%23f8f8f3%22%2F%3E%20%3Cpath%20d%3D%22M27%2016.5V32.5M27%2027.5L36%2019.5M30.5%2025L37%2032.5%22%20fill%3D%22none%22%20stroke%3D%22%232e5a46%22%20stroke-width%3D%223.4%22%20stroke-linecap%3D%22square%22%2F%3E%20%3Ccircle%20cx%3D%2214.8%22%20cy%3D%2224.5%22%20r%3D%221%22%20fill%3D%22%237a5a1e%22%2F%3E%3Ccircle%20cx%3D%2249.2%22%20cy%3D%2224.5%22%20r%3D%221%22%20fill%3D%22%237a5a1e%22%2F%3E%20%3Cpath%20d%3D%22M22%2044V49.5H42V44%22%20fill%3D%22none%22%20stroke%3D%22%23c9a45c%22%20stroke-width%3D%223.5%22%20stroke-linejoin%3D%22round%22%2F%3E%20%3Crect%20x%3D%2218.5%22%20y%3D%2242%22%20width%3D%227%22%20height%3D%224%22%20rx%3D%221%22%20fill%3D%22%23c9a45c%22%2F%3E%3Crect%20x%3D%2238.5%22%20y%3D%2242%22%20width%3D%227%22%20height%3D%224%22%20rx%3D%221%22%20fill%3D%22%23c9a45c%22%2F%3E%20%3C%2Fsvg%3E" alt="File Browser"><button class="action menu-button" aria-label="사이드바 전환" title="사이드바 전환"><i class="material-icons">menu</i><span>사이드바 전환</span></button><div id="search"><div id="input"><i class="material-icons">search</i><input type="text" placeholder="검색..." aria-label="검색..." tabindex="-1"></div></div><div class="grow"></div><button class="action search-button" aria-label="검색" title="검색"><i class="material-icons">search</i><span>검색</span></button><div id="dropdown"><div><button class="action" aria-label="공유" title="공유"><i class="material-icons">share</i><span>공유</span></button><button class="action" aria-label="이름 바꾸기" title="이름 바꾸기"><i class="material-icons">mode_edit</i><span>이름 바꾸기</span></button><button class="action" aria-label="복사" title="복사"><i class="material-icons">content_copy</i><span>복사</span></button><button class="action" aria-label="이동" title="이동"><i class="material-icons">forward</i><span>이동</span></button><button class="action" aria-label="삭제" title="삭제"><i class="material-icons">delete</i><span>삭제</span></button><button class="action" aria-label="보기 전환" title="보기 전환"><i class="material-icons">view_module</i><span>보기 전환</span></button><button class="action" aria-label="다운로드" title="다운로드"><i class="material-icons">file_download</i><span>다운로드</span></button><button class="action" aria-label="업로드" title="업로드"><i class="material-icons">file_upload</i><span>업로드</span></button><button class="action" aria-label="정보" title="정보"><i class="material-icons">info</i><span>정보</span></button><button class="action" aria-label="선택" title="선택"><i class="material-icons">check_circle</i><span>선택</span></button></div></div><button class="action" id="more" aria-label="더보기" title="더보기"><i class="material-icons">more_vert</i><span>더보기</span></button></header><nav><button class="action" aria-label="admin" title="admin"><i class="material-icons">person</i><span>admin</span></button><button class="action" aria-label="내 파일" title="내 파일"><i class="material-icons">folder</i><span>내 파일</span></button><div><button class="action" aria-label="새로운 폴더" title="새로운 폴더"><i class="material-icons">create_new_folder</i><span>새로운 폴더</span></button><button class="action" aria-label="새로운 파일" title="새로운 파일"><i class="material-icons">note_add</i><span>새로운 파일</span></button></div><div><button class="action" aria-label="설정" title="설정"><i class="material-icons">settings_applications</i><span>설정</span></button></div><button class="action" id="logout" aria-label="로그아웃" title="로그아웃"><i class="material-icons">exit_to_app</i><span>로그아웃</span></button><div class="credits" style="width:90%;margin:2em 2.5em 3em 2.5em"><div><div class="vue-simple-progress" style="background:#eee;overflow:hidden;height:4px;border-radius:3px"><div class="vue-simple-progress-bar" style="background:#2196f3;width:4.43%;height:4px;transition:all .5s ease"></div></div></div><br>436 GiB 중 19.3 GiB 사용</div><p class="credits"><span><a>File Browser</a><span> 2.63.23</span></span><span><a>도움말</a></span></p></nav><main><div class="breadcrumbs"><a aria-label="홈" title="홈"><i class="material-icons">home</i></a><span><span class="chevron"><i class="material-icons">keyboard_arrow_right</i></span><a>보관함</a></span></div><div id="listing" class="list file-icons"><div><div class="item header"><div></div><div><p class="name active"><span>이름</span><i class="material-icons">arrow_upward</i></p><p class="size"><span>크기</span><i class="material-icons">arrow_upward</i></p><p class="modified"><span>최종 수정</span><i class="material-icons">arrow_upward</i></p></div></div></div><h2>폴더</h2><div><div class="item" role="button" tabindex="0" data-dir="true" data-type="" aria-label="사진" aria-selected="false" data-ext=""><div><i class="material-icons"></i></div><div><p class="name">사진</p><p class="size">&mdash;</p><p class="modified"><time>2일 전</time></p></div></div><div class="item" role="button" tabindex="0" data-dir="true" data-type="" aria-label="문서" aria-selected="false" data-ext=""><div><i class="material-icons"></i></div><div><p class="name">문서</p><p class="size">&mdash;</p><p class="modified"><time>5일 전</time></p></div></div><div class="item" role="button" tabindex="0" data-dir="true" data-type="" aria-label="백업" aria-selected="false" data-ext=""><div><i class="material-icons"></i></div><div><p class="name">백업</p><p class="size">&mdash;</p><p class="modified"><time>한 달 전</time></p></div></div></div><h2>파일</h2><div><div class="item" role="button" tabindex="0" data-dir="false" data-type="image" aria-label="제주_노을.jpg" aria-selected="false" data-ext=".jpg"><div><img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20160%20120%27%20preserveAspectRatio%3D%27xMidYMid%20slice%27%3E%20%3Cdefs%3E%3ClinearGradient%20id%3D%27s%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%233b2d5c%27%2F%3E%3Cstop%20offset%3D%27.6%27%20stop-color%3D%27%23e0734a%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23f6c46a%27%2F%3E%3C%2FlinearGradient%3E%20%3ClinearGradient%20id%3D%27w%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%237a4650%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%231d1b2e%27%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%20%3Crect%20width%3D%27160%27%20height%3D%2788%27%20fill%3D%27url%28%23s%29%27%2F%3E%3Ccircle%20cx%3D%27106%27%20cy%3D%2778%27%20r%3D%2714%27%20fill%3D%27%23ffd88a%27%2F%3E%20%3Cpath%20d%3D%27M0%2088%20L22%2076%20Q48%2058%2070%2066%20Q84%2071%2098%2082%20L118%2088Z%27%20fill%3D%27%232a2238%27%2F%3E%20%3Crect%20y%3D%2788%27%20width%3D%27160%27%20height%3D%2732%27%20fill%3D%27url%28%23w%29%27%2F%3E%20%3Cpath%20d%3D%27M94%2093h24M98%2098h16M101%20104h10M104%20110h4%27%20stroke%3D%27%23ffd88a%27%20stroke-opacity%3D%27.75%27%20stroke-width%3D%271.5%27%2F%3E%3C%2Fsvg%3E" alt="제주_노을.jpg"></div><div><p class="name">제주_노을.jpg</p><p class="size">4.2 MiB</p><p class="modified"><time>3일 전</time></p></div></div><div class="item" role="button" tabindex="0" data-dir="false" data-type="image" aria-label="우리집_고양이.png" aria-selected="false" data-ext=".png"><div><img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20160%20120%27%20preserveAspectRatio%3D%27xMidYMid%20slice%27%3E%20%3Crect%20width%3D%27160%27%20height%3D%27120%27%20fill%3D%27%23d9c7a8%27%2F%3E%3Crect%20x%3D%2716%27%20y%3D%2712%27%20width%3D%2772%27%20height%3D%2762%27%20fill%3D%27%23a7cbe0%27%20stroke%3D%27%23f3ead8%27%20stroke-width%3D%275%27%2F%3E%20%3Cpath%20d%3D%27M52%2012v62M16%2043h72%27%20stroke%3D%27%23f3ead8%27%20stroke-width%3D%273%27%2F%3E%3Ccircle%20cx%3D%2734%27%20cy%3D%2728%27%20r%3D%276%27%20fill%3D%27%23fff7d6%27%20opacity%3D%27.8%27%2F%3E%20%3Crect%20y%3D%2774%27%20width%3D%27160%27%20height%3D%279%27%20fill%3D%27%23a8875f%27%2F%3E%3Crect%20y%3D%2783%27%20width%3D%27160%27%20height%3D%2737%27%20fill%3D%27%23c4a982%27%2F%3E%20%3Cpath%20d%3D%27M128%2080%20Q150%2078%20142%2056%27%20stroke%3D%27%232b2420%27%20stroke-width%3D%276%27%20fill%3D%27none%27%20stroke-linecap%3D%27round%27%2F%3E%20%3Cellipse%20cx%3D%27112%27%20cy%3D%2762%27%20rx%3D%2719%27%20ry%3D%2720%27%20fill%3D%27%232b2420%27%2F%3E%3Ccircle%20cx%3D%27111%27%20cy%3D%2738%27%20r%3D%2712.5%27%20fill%3D%27%232b2420%27%2F%3E%20%3Cpath%20d%3D%27M100.5%2033%20L99%2019%20L108.5%2028Z%20M121.5%2033%20L123%2019%20L113.5%2028Z%27%20fill%3D%27%232b2420%27%2F%3E%20%3Ccircle%20cx%3D%27106.5%27%20cy%3D%2738%27%20r%3D%272%27%20fill%3D%27%23e7c14d%27%2F%3E%3Ccircle%20cx%3D%27115.5%27%20cy%3D%2738%27%20r%3D%272%27%20fill%3D%27%23e7c14d%27%2F%3E%3C%2Fsvg%3E" alt="우리집_고양이.png"></div><div><p class="name">우리집_고양이.png</p><p class="size">2.8 MiB</p><p class="modified"><time>6일 전</time></p></div></div><div class="item" role="button" tabindex="0" data-dir="false" data-type="image" aria-label="설악산_단풍.jpg" aria-selected="false" data-ext=".jpg"><div><img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20160%20120%27%20preserveAspectRatio%3D%27xMidYMid%20slice%27%3E%20%3Cdefs%3E%3ClinearGradient%20id%3D%27k%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23bcd4e2%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23f2e7d2%27%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%20%3Crect%20width%3D%27160%27%20height%3D%27120%27%20fill%3D%27url%28%23k%29%27%2F%3E%20%3Cpath%20d%3D%27M0%2072%20L26%2040%20L44%2056%20L72%2020%20L98%2050%20L118%2032%20L160%2064%20V120%20H0Z%27%20fill%3D%27%237f8b93%27%2F%3E%20%3Cpath%20d%3D%27M66%2028%20L72%2020%20L79%2029%20L74%2027Z%27%20fill%3D%27%23eef2f4%27%2F%3E%20%3Cpath%20d%3D%27M0%2086%20Q30%2064%2062%2080%20T122%2072%20T160%2080%20V120%20H0Z%27%20fill%3D%27%23b8452c%27%2F%3E%20%3Cpath%20d%3D%27M0%20102%20Q40%2084%2082%2098%20T160%2094%20V120%20H0Z%27%20fill%3D%27%23d9822b%27%2F%3E%20%3Cg%20fill%3D%27%23e8b23f%27%3E%3Ccircle%20cx%3D%2720%27%20cy%3D%2798%27%20r%3D%275%27%2F%3E%3Ccircle%20cx%3D%2730%27%20cy%3D%2795%27%20r%3D%276%27%2F%3E%3Ccircle%20cx%3D%27118%27%20cy%3D%2792%27%20r%3D%275%27%2F%3E%3Ccircle%20cx%3D%27128%27%20cy%3D%2790%27%20r%3D%276%27%2F%3E%3C%2Fg%3E%20%3Cg%20fill%3D%27%238e2f1f%27%3E%3Ccircle%20cx%3D%2760%27%20cy%3D%2784%27%20r%3D%274%27%2F%3E%3Ccircle%20cx%3D%2768%27%20cy%3D%2782%27%20r%3D%275%27%2F%3E%3Ccircle%20cx%3D%27146%27%20cy%3D%2780%27%20r%3D%274%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E" alt="설악산_단풍.jpg"></div><div><p class="name">설악산_단풍.jpg</p><p class="size">5.1 MiB</p><p class="modified"><time>12일 전</time></p></div></div><div class="item" role="button" tabindex="0" data-dir="false" data-type="pdf" aria-label="2026_사업계획서.pdf" aria-selected="true" data-ext=".pdf"><div><i class="material-icons"></i></div><div><p class="name">2026_사업계획서.pdf</p><p class="size">1.3 MiB</p><p class="modified"><time>4시간 전</time></p></div></div><div class="item" role="button" tabindex="0" data-dir="false" data-type="blob" aria-label="백업_2026-09.zip" aria-selected="false" data-ext=".zip"><div><i class="material-icons"></i></div><div><p class="name">백업_2026-09.zip</p><p class="size">2.4 GiB</p><p class="modified"><time>한 달 전</time></p></div></div><div class="item" role="button" tabindex="0" data-dir="false" data-type="video" aria-label="가족여행_브이로그.mp4" aria-selected="false" data-ext=".mp4"><div><i class="material-icons"></i></div><div><p class="name">가족여행_브이로그.mp4</p><p class="size">1.1 GiB</p><p class="modified"><time>2달 전</time></p></div></div></div><div id="multiple-selection"></div></div></main></div></div>
+  </section>
+
+  <section class="screen">
+    <div class="sec-h"><span class="num">②</span><h2>같은 폴더 · 격자 / 사진 보기</h2>
+      <div class="seg sub-seg" role="group" aria-label="보기">
+        <button type="button" data-set-view="mosaic" data-target="frame-mosaic" aria-pressed="false">격자 보기</button>
+        <button type="button" data-set-view="gallery" data-target="frame-mosaic" aria-pressed="true">사진 보기</button>
+      </div></div>
+    <div class="stage"><div class="fb" data-w="1280" id="frame-mosaic" style="width:1280px"><header><img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%20%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%2260%22%20height%3D%2260%22%20rx%3D%227%22%20fill%3D%22%232e5a46%22%2F%3E%20%3Crect%20x%3D%226.5%22%20y%3D%226.5%22%20width%3D%2251%22%20height%3D%2251%22%20rx%3D%224%22%20fill%3D%22none%22%20stroke%3D%22%23244a39%22%20stroke-width%3D%222%22%2F%3E%20%3Crect%20x%3D%2213%22%20y%3D%2211%22%20width%3D%2238%22%20height%3D%2227%22%20rx%3D%222%22%20fill%3D%22%23c9a45c%22%2F%3E%20%3Crect%20x%3D%2216%22%20y%3D%2214%22%20width%3D%2232%22%20height%3D%2221%22%20fill%3D%22%23f8f8f3%22%2F%3E%20%3Cpath%20d%3D%22M27%2016.5V32.5M27%2027.5L36%2019.5M30.5%2025L37%2032.5%22%20fill%3D%22none%22%20stroke%3D%22%232e5a46%22%20stroke-width%3D%223.4%22%20stroke-linecap%3D%22square%22%2F%3E%20%3Ccircle%20cx%3D%2214.8%22%20cy%3D%2224.5%22%20r%3D%221%22%20fill%3D%22%237a5a1e%22%2F%3E%3Ccircle%20cx%3D%2249.2%22%20cy%3D%2224.5%22%20r%3D%221%22%20fill%3D%22%237a5a1e%22%2F%3E%20%3Cpath%20d%3D%22M22%2044V49.5H42V44%22%20fill%3D%22none%22%20stroke%3D%22%23c9a45c%22%20stroke-width%3D%223.5%22%20stroke-linejoin%3D%22round%22%2F%3E%20%3Crect%20x%3D%2218.5%22%20y%3D%2242%22%20width%3D%227%22%20height%3D%224%22%20rx%3D%221%22%20fill%3D%22%23c9a45c%22%2F%3E%3Crect%20x%3D%2238.5%22%20y%3D%2242%22%20width%3D%227%22%20height%3D%224%22%20rx%3D%221%22%20fill%3D%22%23c9a45c%22%2F%3E%20%3C%2Fsvg%3E" alt="File Browser"><button class="action menu-button" aria-label="사이드바 전환" title="사이드바 전환"><i class="material-icons">menu</i><span>사이드바 전환</span></button><div id="search"><div id="input"><i class="material-icons">search</i><input type="text" placeholder="검색..." aria-label="검색..." tabindex="-1"></div></div><div class="grow"></div><button class="action search-button" aria-label="검색" title="검색"><i class="material-icons">search</i><span>검색</span></button><div id="dropdown"><div><button class="action" aria-label="보기 전환" title="보기 전환"><i class="material-icons">view_list</i><span>보기 전환</span></button><button class="action" aria-label="다운로드" title="다운로드"><i class="material-icons">file_download</i><span>다운로드</span></button><button class="action" aria-label="업로드" title="업로드"><i class="material-icons">file_upload</i><span>업로드</span></button><button class="action" aria-label="정보" title="정보"><i class="material-icons">info</i><span>정보</span></button><button class="action" aria-label="선택" title="선택"><i class="material-icons">check_circle</i><span>선택</span></button></div></div><button class="action" id="more" aria-label="더보기" title="더보기"><i class="material-icons">more_vert</i><span>더보기</span></button></header><nav><button class="action" aria-label="admin" title="admin"><i class="material-icons">person</i><span>admin</span></button><button class="action" aria-label="내 파일" title="내 파일"><i class="material-icons">folder</i><span>내 파일</span></button><div><button class="action" aria-label="새로운 폴더" title="새로운 폴더"><i class="material-icons">create_new_folder</i><span>새로운 폴더</span></button><button class="action" aria-label="새로운 파일" title="새로운 파일"><i class="material-icons">note_add</i><span>새로운 파일</span></button></div><div><button class="action" aria-label="설정" title="설정"><i class="material-icons">settings_applications</i><span>설정</span></button></div><button class="action" id="logout" aria-label="로그아웃" title="로그아웃"><i class="material-icons">exit_to_app</i><span>로그아웃</span></button><div class="credits" style="width:90%;margin:2em 2.5em 3em 2.5em"><div><div class="vue-simple-progress" style="background:#eee;overflow:hidden;height:4px;border-radius:3px"><div class="vue-simple-progress-bar" style="background:#2196f3;width:4.43%;height:4px;transition:all .5s ease"></div></div></div><br>436 GiB 중 19.3 GiB 사용</div><p class="credits"><span><a>File Browser</a><span> 2.63.23</span></span><span><a>도움말</a></span></p></nav><main><div class="breadcrumbs"><a aria-label="홈" title="홈"><i class="material-icons">home</i></a><span><span class="chevron"><i class="material-icons">keyboard_arrow_right</i></span><a>보관함</a></span></div><div id="listing" class="mosaic gallery file-icons"><div><div class="item header"><div></div><div><p class="name active"><span>이름</span><i class="material-icons">arrow_upward</i></p><p class="size"><span>크기</span><i class="material-icons">arrow_upward</i></p><p class="modified"><span>최종 수정</span><i class="material-icons">arrow_upward</i></p></div></div></div><h2>폴더</h2><div><div class="item" role="button" tabindex="0" data-dir="true" data-type="" aria-label="사진" aria-selected="false" data-ext=""><div><i class="material-icons"></i></div><div><p class="name">사진</p><p class="size">&mdash;</p><p class="modified"><time>2일 전</time></p></div></div><div class="item" role="button" tabindex="0" data-dir="true" data-type="" aria-label="문서" aria-selected="false" data-ext=""><div><i class="material-icons"></i></div><div><p class="name">문서</p><p class="size">&mdash;</p><p class="modified"><time>5일 전</time></p></div></div><div class="item" role="button" tabindex="0" data-dir="true" data-type="" aria-label="백업" aria-selected="false" data-ext=""><div><i class="material-icons"></i></div><div><p class="name">백업</p><p class="size">&mdash;</p><p class="modified"><time>한 달 전</time></p></div></div></div><h2>파일</h2><div><div class="item" role="button" tabindex="0" data-dir="false" data-type="image" aria-label="제주_노을.jpg" aria-selected="false" data-ext=".jpg"><div><img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20160%20120%27%20preserveAspectRatio%3D%27xMidYMid%20slice%27%3E%20%3Cdefs%3E%3ClinearGradient%20id%3D%27s%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%233b2d5c%27%2F%3E%3Cstop%20offset%3D%27.6%27%20stop-color%3D%27%23e0734a%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23f6c46a%27%2F%3E%3C%2FlinearGradient%3E%20%3ClinearGradient%20id%3D%27w%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%237a4650%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%231d1b2e%27%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%20%3Crect%20width%3D%27160%27%20height%3D%2788%27%20fill%3D%27url%28%23s%29%27%2F%3E%3Ccircle%20cx%3D%27106%27%20cy%3D%2778%27%20r%3D%2714%27%20fill%3D%27%23ffd88a%27%2F%3E%20%3Cpath%20d%3D%27M0%2088%20L22%2076%20Q48%2058%2070%2066%20Q84%2071%2098%2082%20L118%2088Z%27%20fill%3D%27%232a2238%27%2F%3E%20%3Crect%20y%3D%2788%27%20width%3D%27160%27%20height%3D%2732%27%20fill%3D%27url%28%23w%29%27%2F%3E%20%3Cpath%20d%3D%27M94%2093h24M98%2098h16M101%20104h10M104%20110h4%27%20stroke%3D%27%23ffd88a%27%20stroke-opacity%3D%27.75%27%20stroke-width%3D%271.5%27%2F%3E%3C%2Fsvg%3E" alt="제주_노을.jpg"></div><div><p class="name">제주_노을.jpg</p><p class="size">4.2 MiB</p><p class="modified"><time>3일 전</time></p></div></div><div class="item" role="button" tabindex="0" data-dir="false" data-type="image" aria-label="우리집_고양이.png" aria-selected="false" data-ext=".png"><div><img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20160%20120%27%20preserveAspectRatio%3D%27xMidYMid%20slice%27%3E%20%3Crect%20width%3D%27160%27%20height%3D%27120%27%20fill%3D%27%23d9c7a8%27%2F%3E%3Crect%20x%3D%2716%27%20y%3D%2712%27%20width%3D%2772%27%20height%3D%2762%27%20fill%3D%27%23a7cbe0%27%20stroke%3D%27%23f3ead8%27%20stroke-width%3D%275%27%2F%3E%20%3Cpath%20d%3D%27M52%2012v62M16%2043h72%27%20stroke%3D%27%23f3ead8%27%20stroke-width%3D%273%27%2F%3E%3Ccircle%20cx%3D%2734%27%20cy%3D%2728%27%20r%3D%276%27%20fill%3D%27%23fff7d6%27%20opacity%3D%27.8%27%2F%3E%20%3Crect%20y%3D%2774%27%20width%3D%27160%27%20height%3D%279%27%20fill%3D%27%23a8875f%27%2F%3E%3Crect%20y%3D%2783%27%20width%3D%27160%27%20height%3D%2737%27%20fill%3D%27%23c4a982%27%2F%3E%20%3Cpath%20d%3D%27M128%2080%20Q150%2078%20142%2056%27%20stroke%3D%27%232b2420%27%20stroke-width%3D%276%27%20fill%3D%27none%27%20stroke-linecap%3D%27round%27%2F%3E%20%3Cellipse%20cx%3D%27112%27%20cy%3D%2762%27%20rx%3D%2719%27%20ry%3D%2720%27%20fill%3D%27%232b2420%27%2F%3E%3Ccircle%20cx%3D%27111%27%20cy%3D%2738%27%20r%3D%2712.5%27%20fill%3D%27%232b2420%27%2F%3E%20%3Cpath%20d%3D%27M100.5%2033%20L99%2019%20L108.5%2028Z%20M121.5%2033%20L123%2019%20L113.5%2028Z%27%20fill%3D%27%232b2420%27%2F%3E%20%3Ccircle%20cx%3D%27106.5%27%20cy%3D%2738%27%20r%3D%272%27%20fill%3D%27%23e7c14d%27%2F%3E%3Ccircle%20cx%3D%27115.5%27%20cy%3D%2738%27%20r%3D%272%27%20fill%3D%27%23e7c14d%27%2F%3E%3C%2Fsvg%3E" alt="우리집_고양이.png"></div><div><p class="name">우리집_고양이.png</p><p class="size">2.8 MiB</p><p class="modified"><time>6일 전</time></p></div></div><div class="item" role="button" tabindex="0" data-dir="false" data-type="image" aria-label="설악산_단풍.jpg" aria-selected="false" data-ext=".jpg"><div><img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20160%20120%27%20preserveAspectRatio%3D%27xMidYMid%20slice%27%3E%20%3Cdefs%3E%3ClinearGradient%20id%3D%27k%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23bcd4e2%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23f2e7d2%27%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%20%3Crect%20width%3D%27160%27%20height%3D%27120%27%20fill%3D%27url%28%23k%29%27%2F%3E%20%3Cpath%20d%3D%27M0%2072%20L26%2040%20L44%2056%20L72%2020%20L98%2050%20L118%2032%20L160%2064%20V120%20H0Z%27%20fill%3D%27%237f8b93%27%2F%3E%20%3Cpath%20d%3D%27M66%2028%20L72%2020%20L79%2029%20L74%2027Z%27%20fill%3D%27%23eef2f4%27%2F%3E%20%3Cpath%20d%3D%27M0%2086%20Q30%2064%2062%2080%20T122%2072%20T160%2080%20V120%20H0Z%27%20fill%3D%27%23b8452c%27%2F%3E%20%3Cpath%20d%3D%27M0%20102%20Q40%2084%2082%2098%20T160%2094%20V120%20H0Z%27%20fill%3D%27%23d9822b%27%2F%3E%20%3Cg%20fill%3D%27%23e8b23f%27%3E%3Ccircle%20cx%3D%2720%27%20cy%3D%2798%27%20r%3D%275%27%2F%3E%3Ccircle%20cx%3D%2730%27%20cy%3D%2795%27%20r%3D%276%27%2F%3E%3Ccircle%20cx%3D%27118%27%20cy%3D%2792%27%20r%3D%275%27%2F%3E%3Ccircle%20cx%3D%27128%27%20cy%3D%2790%27%20r%3D%276%27%2F%3E%3C%2Fg%3E%20%3Cg%20fill%3D%27%238e2f1f%27%3E%3Ccircle%20cx%3D%2760%27%20cy%3D%2784%27%20r%3D%274%27%2F%3E%3Ccircle%20cx%3D%2768%27%20cy%3D%2782%27%20r%3D%275%27%2F%3E%3Ccircle%20cx%3D%27146%27%20cy%3D%2780%27%20r%3D%274%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E" alt="설악산_단풍.jpg"></div><div><p class="name">설악산_단풍.jpg</p><p class="size">5.1 MiB</p><p class="modified"><time>12일 전</time></p></div></div><div class="item" role="button" tabindex="0" data-dir="false" data-type="pdf" aria-label="2026_사업계획서.pdf" aria-selected="false" data-ext=".pdf"><div><i class="material-icons"></i></div><div><p class="name">2026_사업계획서.pdf</p><p class="size">1.3 MiB</p><p class="modified"><time>4시간 전</time></p></div></div><div class="item" role="button" tabindex="0" data-dir="false" data-type="blob" aria-label="백업_2026-09.zip" aria-selected="false" data-ext=".zip"><div><i class="material-icons"></i></div><div><p class="name">백업_2026-09.zip</p><p class="size">2.4 GiB</p><p class="modified"><time>한 달 전</time></p></div></div><div class="item" role="button" tabindex="0" data-dir="false" data-type="video" aria-label="가족여행_브이로그.mp4" aria-selected="false" data-ext=".mp4"><div><i class="material-icons"></i></div><div><p class="name">가족여행_브이로그.mp4</p><p class="size">1.1 GiB</p><p class="modified"><time>2달 전</time></p></div></div></div><div id="multiple-selection"></div></div></main></div></div>
+  </section>
+
+  <section class="screen">
+    <div class="sec-h"><span class="num">③</span><h2>로그인</h2>
+      <p>제목 "kwonmo.net"은 CSS 가 아니라 설정 › 전역 설정 › 브랜딩의 <b>인스턴스 이름</b>으로 바꾼다.</p></div>
+    <div class="stage"><div class="fb login-frame" data-w="1280" style="width:1280px"><div id="login"><form onsubmit="return false"><img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%20%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%2260%22%20height%3D%2260%22%20rx%3D%227%22%20fill%3D%22%232e5a46%22%2F%3E%20%3Crect%20x%3D%226.5%22%20y%3D%226.5%22%20width%3D%2251%22%20height%3D%2251%22%20rx%3D%224%22%20fill%3D%22none%22%20stroke%3D%22%23244a39%22%20stroke-width%3D%222%22%2F%3E%20%3Crect%20x%3D%2213%22%20y%3D%2211%22%20width%3D%2238%22%20height%3D%2227%22%20rx%3D%222%22%20fill%3D%22%23c9a45c%22%2F%3E%20%3Crect%20x%3D%2216%22%20y%3D%2214%22%20width%3D%2232%22%20height%3D%2221%22%20fill%3D%22%23f8f8f3%22%2F%3E%20%3Cpath%20d%3D%22M27%2016.5V32.5M27%2027.5L36%2019.5M30.5%2025L37%2032.5%22%20fill%3D%22none%22%20stroke%3D%22%232e5a46%22%20stroke-width%3D%223.4%22%20stroke-linecap%3D%22square%22%2F%3E%20%3Ccircle%20cx%3D%2214.8%22%20cy%3D%2224.5%22%20r%3D%221%22%20fill%3D%22%237a5a1e%22%2F%3E%3Ccircle%20cx%3D%2249.2%22%20cy%3D%2224.5%22%20r%3D%221%22%20fill%3D%22%237a5a1e%22%2F%3E%20%3Cpath%20d%3D%22M22%2044V49.5H42V44%22%20fill%3D%22none%22%20stroke%3D%22%23c9a45c%22%20stroke-width%3D%223.5%22%20stroke-linejoin%3D%22round%22%2F%3E%20%3Crect%20x%3D%2218.5%22%20y%3D%2242%22%20width%3D%227%22%20height%3D%224%22%20rx%3D%221%22%20fill%3D%22%23c9a45c%22%2F%3E%3Crect%20x%3D%2238.5%22%20y%3D%2242%22%20width%3D%227%22%20height%3D%224%22%20rx%3D%221%22%20fill%3D%22%23c9a45c%22%2F%3E%20%3C%2Fsvg%3E" alt="File Browser"><h1>kwonmo.net</h1><input class="input input--block" type="text" placeholder="사용자 이름" tabindex="-1"><input class="input input--block" type="password" placeholder="비밀번호" tabindex="-1"><input class="button button--block" type="submit" value="로그인" tabindex="-1"></form></div></div></div>
+  </section>
+
+  <section class="screen">
+    <div class="duo">
+      <div>
+        <div class="sec-h"><span class="num">④</span><h2>폰 폭 목록</h2></div>
+        <div class="stage"><div class="fb phone" data-w="390" style="width:390px"><header><img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%20%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%2260%22%20height%3D%2260%22%20rx%3D%227%22%20fill%3D%22%232e5a46%22%2F%3E%20%3Crect%20x%3D%226.5%22%20y%3D%226.5%22%20width%3D%2251%22%20height%3D%2251%22%20rx%3D%224%22%20fill%3D%22none%22%20stroke%3D%22%23244a39%22%20stroke-width%3D%222%22%2F%3E%20%3Crect%20x%3D%2213%22%20y%3D%2211%22%20width%3D%2238%22%20height%3D%2227%22%20rx%3D%222%22%20fill%3D%22%23c9a45c%22%2F%3E%20%3Crect%20x%3D%2216%22%20y%3D%2214%22%20width%3D%2232%22%20height%3D%2221%22%20fill%3D%22%23f8f8f3%22%2F%3E%20%3Cpath%20d%3D%22M27%2016.5V32.5M27%2027.5L36%2019.5M30.5%2025L37%2032.5%22%20fill%3D%22none%22%20stroke%3D%22%232e5a46%22%20stroke-width%3D%223.4%22%20stroke-linecap%3D%22square%22%2F%3E%20%3Ccircle%20cx%3D%2214.8%22%20cy%3D%2224.5%22%20r%3D%221%22%20fill%3D%22%237a5a1e%22%2F%3E%3Ccircle%20cx%3D%2249.2%22%20cy%3D%2224.5%22%20r%3D%221%22%20fill%3D%22%237a5a1e%22%2F%3E%20%3Cpath%20d%3D%22M22%2044V49.5H42V44%22%20fill%3D%22none%22%20stroke%3D%22%23c9a45c%22%20stroke-width%3D%223.5%22%20stroke-linejoin%3D%22round%22%2F%3E%20%3Crect%20x%3D%2218.5%22%20y%3D%2242%22%20width%3D%227%22%20height%3D%224%22%20rx%3D%221%22%20fill%3D%22%23c9a45c%22%2F%3E%3Crect%20x%3D%2238.5%22%20y%3D%2242%22%20width%3D%227%22%20height%3D%224%22%20rx%3D%221%22%20fill%3D%22%23c9a45c%22%2F%3E%20%3C%2Fsvg%3E" alt="File Browser"><button class="action menu-button" aria-label="사이드바 전환" title="사이드바 전환"><i class="material-icons">menu</i><span>사이드바 전환</span></button><div id="search"><div id="input"><i class="material-icons">search</i><input type="text" placeholder="검색..." aria-label="검색..." tabindex="-1"></div></div><div class="grow"></div><button class="action search-button" aria-label="검색" title="검색"><i class="material-icons">search</i><span>검색</span></button><div id="dropdown"><div><button class="action" aria-label="보기 전환" title="보기 전환"><i class="material-icons">view_module</i><span>보기 전환</span></button><button class="action" aria-label="다운로드" title="다운로드"><i class="material-icons">file_download</i><span>다운로드</span></button><button class="action" aria-label="업로드" title="업로드"><i class="material-icons">file_upload</i><span>업로드</span></button><button class="action" aria-label="정보" title="정보"><i class="material-icons">info</i><span>정보</span></button><button class="action" aria-label="선택" title="선택"><i class="material-icons">check_circle</i><span>선택</span></button></div></div><button class="action" id="more" aria-label="더보기" title="더보기"><i class="material-icons">more_vert</i><span>더보기</span></button></header><nav><button class="action" aria-label="admin" title="admin"><i class="material-icons">person</i><span>admin</span></button><button class="action" aria-label="내 파일" title="내 파일"><i class="material-icons">folder</i><span>내 파일</span></button><div><button class="action" aria-label="새로운 폴더" title="새로운 폴더"><i class="material-icons">create_new_folder</i><span>새로운 폴더</span></button><button class="action" aria-label="새로운 파일" title="새로운 파일"><i class="material-icons">note_add</i><span>새로운 파일</span></button></div><div><button class="action" aria-label="설정" title="설정"><i class="material-icons">settings_applications</i><span>설정</span></button></div><button class="action" id="logout" aria-label="로그아웃" title="로그아웃"><i class="material-icons">exit_to_app</i><span>로그아웃</span></button><div class="credits" style="width:90%;margin:2em 2.5em 3em 2.5em"><div><div class="vue-simple-progress" style="background:#eee;overflow:hidden;height:4px;border-radius:3px"><div class="vue-simple-progress-bar" style="background:#2196f3;width:4.43%;height:4px;transition:all .5s ease"></div></div></div><br>436 GiB 중 19.3 GiB 사용</div><p class="credits"><span><a>File Browser</a><span> 2.63.23</span></span><span><a>도움말</a></span></p></nav><main><div class="breadcrumbs"><a aria-label="홈" title="홈"><i class="material-icons">home</i></a><span><span class="chevron"><i class="material-icons">keyboard_arrow_right</i></span><a>보관함</a></span></div><div id="listing" class="list file-icons"><div><div class="item header"><div></div><div><p class="name active"><span>이름</span><i class="material-icons">arrow_upward</i></p><p class="size"><span>크기</span><i class="material-icons">arrow_upward</i></p><p class="modified"><span>최종 수정</span><i class="material-icons">arrow_upward</i></p></div></div></div><h2>폴더</h2><div><div class="item" role="button" tabindex="0" data-dir="true" data-type="" aria-label="사진" aria-selected="false" data-ext=""><div><i class="material-icons"></i></div><div><p class="name">사진</p><p class="size">&mdash;</p><p class="modified"><time>2일 전</time></p></div></div><div class="item" role="button" tabindex="0" data-dir="true" data-type="" aria-label="문서" aria-selected="false" data-ext=""><div><i class="material-icons"></i></div><div><p class="name">문서</p><p class="size">&mdash;</p><p class="modified"><time>5일 전</time></p></div></div><div class="item" role="button" tabindex="0" data-dir="true" data-type="" aria-label="백업" aria-selected="false" data-ext=""><div><i class="material-icons"></i></div><div><p class="name">백업</p><p class="size">&mdash;</p><p class="modified"><time>한 달 전</time></p></div></div></div><h2>파일</h2><div><div class="item" role="button" tabindex="0" data-dir="false" data-type="image" aria-label="제주_노을.jpg" aria-selected="false" data-ext=".jpg"><div><img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20160%20120%27%20preserveAspectRatio%3D%27xMidYMid%20slice%27%3E%20%3Cdefs%3E%3ClinearGradient%20id%3D%27s%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%233b2d5c%27%2F%3E%3Cstop%20offset%3D%27.6%27%20stop-color%3D%27%23e0734a%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23f6c46a%27%2F%3E%3C%2FlinearGradient%3E%20%3ClinearGradient%20id%3D%27w%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%237a4650%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%231d1b2e%27%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%20%3Crect%20width%3D%27160%27%20height%3D%2788%27%20fill%3D%27url%28%23s%29%27%2F%3E%3Ccircle%20cx%3D%27106%27%20cy%3D%2778%27%20r%3D%2714%27%20fill%3D%27%23ffd88a%27%2F%3E%20%3Cpath%20d%3D%27M0%2088%20L22%2076%20Q48%2058%2070%2066%20Q84%2071%2098%2082%20L118%2088Z%27%20fill%3D%27%232a2238%27%2F%3E%20%3Crect%20y%3D%2788%27%20width%3D%27160%27%20height%3D%2732%27%20fill%3D%27url%28%23w%29%27%2F%3E%20%3Cpath%20d%3D%27M94%2093h24M98%2098h16M101%20104h10M104%20110h4%27%20stroke%3D%27%23ffd88a%27%20stroke-opacity%3D%27.75%27%20stroke-width%3D%271.5%27%2F%3E%3C%2Fsvg%3E" alt="제주_노을.jpg"></div><div><p class="name">제주_노을.jpg</p><p class="size">4.2 MiB</p><p class="modified"><time>3일 전</time></p></div></div><div class="item" role="button" tabindex="0" data-dir="false" data-type="image" aria-label="우리집_고양이.png" aria-selected="false" data-ext=".png"><div><img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20160%20120%27%20preserveAspectRatio%3D%27xMidYMid%20slice%27%3E%20%3Crect%20width%3D%27160%27%20height%3D%27120%27%20fill%3D%27%23d9c7a8%27%2F%3E%3Crect%20x%3D%2716%27%20y%3D%2712%27%20width%3D%2772%27%20height%3D%2762%27%20fill%3D%27%23a7cbe0%27%20stroke%3D%27%23f3ead8%27%20stroke-width%3D%275%27%2F%3E%20%3Cpath%20d%3D%27M52%2012v62M16%2043h72%27%20stroke%3D%27%23f3ead8%27%20stroke-width%3D%273%27%2F%3E%3Ccircle%20cx%3D%2734%27%20cy%3D%2728%27%20r%3D%276%27%20fill%3D%27%23fff7d6%27%20opacity%3D%27.8%27%2F%3E%20%3Crect%20y%3D%2774%27%20width%3D%27160%27%20height%3D%279%27%20fill%3D%27%23a8875f%27%2F%3E%3Crect%20y%3D%2783%27%20width%3D%27160%27%20height%3D%2737%27%20fill%3D%27%23c4a982%27%2F%3E%20%3Cpath%20d%3D%27M128%2080%20Q150%2078%20142%2056%27%20stroke%3D%27%232b2420%27%20stroke-width%3D%276%27%20fill%3D%27none%27%20stroke-linecap%3D%27round%27%2F%3E%20%3Cellipse%20cx%3D%27112%27%20cy%3D%2762%27%20rx%3D%2719%27%20ry%3D%2720%27%20fill%3D%27%232b2420%27%2F%3E%3Ccircle%20cx%3D%27111%27%20cy%3D%2738%27%20r%3D%2712.5%27%20fill%3D%27%232b2420%27%2F%3E%20%3Cpath%20d%3D%27M100.5%2033%20L99%2019%20L108.5%2028Z%20M121.5%2033%20L123%2019%20L113.5%2028Z%27%20fill%3D%27%232b2420%27%2F%3E%20%3Ccircle%20cx%3D%27106.5%27%20cy%3D%2738%27%20r%3D%272%27%20fill%3D%27%23e7c14d%27%2F%3E%3Ccircle%20cx%3D%27115.5%27%20cy%3D%2738%27%20r%3D%272%27%20fill%3D%27%23e7c14d%27%2F%3E%3C%2Fsvg%3E" alt="우리집_고양이.png"></div><div><p class="name">우리집_고양이.png</p><p class="size">2.8 MiB</p><p class="modified"><time>6일 전</time></p></div></div><div class="item" role="button" tabindex="0" data-dir="false" data-type="image" aria-label="설악산_단풍.jpg" aria-selected="false" data-ext=".jpg"><div><img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20160%20120%27%20preserveAspectRatio%3D%27xMidYMid%20slice%27%3E%20%3Cdefs%3E%3ClinearGradient%20id%3D%27k%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23bcd4e2%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23f2e7d2%27%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%20%3Crect%20width%3D%27160%27%20height%3D%27120%27%20fill%3D%27url%28%23k%29%27%2F%3E%20%3Cpath%20d%3D%27M0%2072%20L26%2040%20L44%2056%20L72%2020%20L98%2050%20L118%2032%20L160%2064%20V120%20H0Z%27%20fill%3D%27%237f8b93%27%2F%3E%20%3Cpath%20d%3D%27M66%2028%20L72%2020%20L79%2029%20L74%2027Z%27%20fill%3D%27%23eef2f4%27%2F%3E%20%3Cpath%20d%3D%27M0%2086%20Q30%2064%2062%2080%20T122%2072%20T160%2080%20V120%20H0Z%27%20fill%3D%27%23b8452c%27%2F%3E%20%3Cpath%20d%3D%27M0%20102%20Q40%2084%2082%2098%20T160%2094%20V120%20H0Z%27%20fill%3D%27%23d9822b%27%2F%3E%20%3Cg%20fill%3D%27%23e8b23f%27%3E%3Ccircle%20cx%3D%2720%27%20cy%3D%2798%27%20r%3D%275%27%2F%3E%3Ccircle%20cx%3D%2730%27%20cy%3D%2795%27%20r%3D%276%27%2F%3E%3Ccircle%20cx%3D%27118%27%20cy%3D%2792%27%20r%3D%275%27%2F%3E%3Ccircle%20cx%3D%27128%27%20cy%3D%2790%27%20r%3D%276%27%2F%3E%3C%2Fg%3E%20%3Cg%20fill%3D%27%238e2f1f%27%3E%3Ccircle%20cx%3D%2760%27%20cy%3D%2784%27%20r%3D%274%27%2F%3E%3Ccircle%20cx%3D%2768%27%20cy%3D%2782%27%20r%3D%275%27%2F%3E%3Ccircle%20cx%3D%27146%27%20cy%3D%2780%27%20r%3D%274%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E" alt="설악산_단풍.jpg"></div><div><p class="name">설악산_단풍.jpg</p><p class="size">5.1 MiB</p><p class="modified"><time>12일 전</time></p></div></div><div class="item" role="button" tabindex="0" data-dir="false" data-type="pdf" aria-label="2026_사업계획서.pdf" aria-selected="false" data-ext=".pdf"><div><i class="material-icons"></i></div><div><p class="name">2026_사업계획서.pdf</p><p class="size">1.3 MiB</p><p class="modified"><time>4시간 전</time></p></div></div><div class="item" role="button" tabindex="0" data-dir="false" data-type="blob" aria-label="백업_2026-09.zip" aria-selected="false" data-ext=".zip"><div><i class="material-icons"></i></div><div><p class="name">백업_2026-09.zip</p><p class="size">2.4 GiB</p><p class="modified"><time>한 달 전</time></p></div></div><div class="item" role="button" tabindex="0" data-dir="false" data-type="video" aria-label="가족여행_브이로그.mp4" aria-selected="false" data-ext=".mp4"><div><i class="material-icons"></i></div><div><p class="name">가족여행_브이로그.mp4</p><p class="size">1.1 GiB</p><p class="modified"><time>2달 전</time></p></div></div></div><div id="multiple-selection"></div></div></main></div></div>
+      </div>
+      <div>
+        <div class="sec-h"><span class="num">⑤</span><h2>로고 · 파비콘</h2><p>img/logo.svg, img/icons/favicon.svg 로 떼어 쓰는 원본.</p></div>
+        <div class="logo-grid"><div class="tile light"><img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%20%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%2260%22%20height%3D%2260%22%20rx%3D%227%22%20fill%3D%22%232e5a46%22%2F%3E%20%3Crect%20x%3D%226.5%22%20y%3D%226.5%22%20width%3D%2251%22%20height%3D%2251%22%20rx%3D%224%22%20fill%3D%22none%22%20stroke%3D%22%23244a39%22%20stroke-width%3D%222%22%2F%3E%20%3Crect%20x%3D%2213%22%20y%3D%2211%22%20width%3D%2238%22%20height%3D%2227%22%20rx%3D%222%22%20fill%3D%22%23c9a45c%22%2F%3E%20%3Crect%20x%3D%2216%22%20y%3D%2214%22%20width%3D%2232%22%20height%3D%2221%22%20fill%3D%22%23f8f8f3%22%2F%3E%20%3Cpath%20d%3D%22M27%2016.5V32.5M27%2027.5L36%2019.5M30.5%2025L37%2032.5%22%20fill%3D%22none%22%20stroke%3D%22%232e5a46%22%20stroke-width%3D%223.4%22%20stroke-linecap%3D%22square%22%2F%3E%20%3Ccircle%20cx%3D%2214.8%22%20cy%3D%2224.5%22%20r%3D%221%22%20fill%3D%22%237a5a1e%22%2F%3E%3Ccircle%20cx%3D%2249.2%22%20cy%3D%2224.5%22%20r%3D%221%22%20fill%3D%22%237a5a1e%22%2F%3E%20%3Cpath%20d%3D%22M22%2044V49.5H42V44%22%20fill%3D%22none%22%20stroke%3D%22%23c9a45c%22%20stroke-width%3D%223.5%22%20stroke-linejoin%3D%22round%22%2F%3E%20%3Crect%20x%3D%2218.5%22%20y%3D%2242%22%20width%3D%227%22%20height%3D%224%22%20rx%3D%221%22%20fill%3D%22%23c9a45c%22%2F%3E%3Crect%20x%3D%2238.5%22%20y%3D%2242%22%20width%3D%227%22%20height%3D%224%22%20rx%3D%221%22%20fill%3D%22%23c9a45c%22%2F%3E%20%3C%2Fsvg%3E" width="112" height="112" alt="로고"><span class="cap">logo.svg · 밝은 바탕</span></div><div class="tile dark"><img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%20%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%2260%22%20height%3D%2260%22%20rx%3D%227%22%20fill%3D%22%232e5a46%22%2F%3E%20%3Crect%20x%3D%226.5%22%20y%3D%226.5%22%20width%3D%2251%22%20height%3D%2251%22%20rx%3D%224%22%20fill%3D%22none%22%20stroke%3D%22%23244a39%22%20stroke-width%3D%222%22%2F%3E%20%3Crect%20x%3D%2213%22%20y%3D%2211%22%20width%3D%2238%22%20height%3D%2227%22%20rx%3D%222%22%20fill%3D%22%23c9a45c%22%2F%3E%20%3Crect%20x%3D%2216%22%20y%3D%2214%22%20width%3D%2232%22%20height%3D%2221%22%20fill%3D%22%23f8f8f3%22%2F%3E%20%3Cpath%20d%3D%22M27%2016.5V32.5M27%2027.5L36%2019.5M30.5%2025L37%2032.5%22%20fill%3D%22none%22%20stroke%3D%22%232e5a46%22%20stroke-width%3D%223.4%22%20stroke-linecap%3D%22square%22%2F%3E%20%3Ccircle%20cx%3D%2214.8%22%20cy%3D%2224.5%22%20r%3D%221%22%20fill%3D%22%237a5a1e%22%2F%3E%3Ccircle%20cx%3D%2249.2%22%20cy%3D%2224.5%22%20r%3D%221%22%20fill%3D%22%237a5a1e%22%2F%3E%20%3Cpath%20d%3D%22M22%2044V49.5H42V44%22%20fill%3D%22none%22%20stroke%3D%22%23c9a45c%22%20stroke-width%3D%223.5%22%20stroke-linejoin%3D%22round%22%2F%3E%20%3Crect%20x%3D%2218.5%22%20y%3D%2242%22%20width%3D%227%22%20height%3D%224%22%20rx%3D%221%22%20fill%3D%22%23c9a45c%22%2F%3E%3Crect%20x%3D%2238.5%22%20y%3D%2242%22%20width%3D%227%22%20height%3D%224%22%20rx%3D%221%22%20fill%3D%22%23c9a45c%22%2F%3E%20%3C%2Fsvg%3E" width="112" height="112" alt="로고"><span class="cap">logo.svg · 어두운 바탕</span></div><div class="tile light"><div class="favs"><img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%20%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2210%22%20fill%3D%22%232e5a46%22%2F%3E%20%3Crect%20x%3D%229%22%20y%3D%227%22%20width%3D%2246%22%20height%3D%2232%22%20rx%3D%222%22%20fill%3D%22%23f8f8f3%22%20stroke%3D%22%23c9a45c%22%20stroke-width%3D%224%22%2F%3E%20%3Cpath%20d%3D%22M25%2012.5V33.5M25%2027L37%2016.5M30%2023.5L38.5%2033.5%22%20fill%3D%22none%22%20stroke%3D%22%232e5a46%22%20stroke-width%3D%225%22%20stroke-linecap%3D%22square%22%2F%3E%20%3Cpath%20d%3D%22M19%2046V54H45V46%22%20fill%3D%22none%22%20stroke%3D%22%23c9a45c%22%20stroke-width%3D%225.5%22%20stroke-linejoin%3D%22round%22%2F%3E%20%3C%2Fsvg%3E" width="16" height="16" alt=""><img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%20%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2210%22%20fill%3D%22%232e5a46%22%2F%3E%20%3Crect%20x%3D%229%22%20y%3D%227%22%20width%3D%2246%22%20height%3D%2232%22%20rx%3D%222%22%20fill%3D%22%23f8f8f3%22%20stroke%3D%22%23c9a45c%22%20stroke-width%3D%224%22%2F%3E%20%3Cpath%20d%3D%22M25%2012.5V33.5M25%2027L37%2016.5M30%2023.5L38.5%2033.5%22%20fill%3D%22none%22%20stroke%3D%22%232e5a46%22%20stroke-width%3D%225%22%20stroke-linecap%3D%22square%22%2F%3E%20%3Cpath%20d%3D%22M19%2046V54H45V46%22%20fill%3D%22none%22%20stroke%3D%22%23c9a45c%22%20stroke-width%3D%225.5%22%20stroke-linejoin%3D%22round%22%2F%3E%20%3C%2Fsvg%3E" width="32" height="32" alt=""><img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%20%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2210%22%20fill%3D%22%232e5a46%22%2F%3E%20%3Crect%20x%3D%229%22%20y%3D%227%22%20width%3D%2246%22%20height%3D%2232%22%20rx%3D%222%22%20fill%3D%22%23f8f8f3%22%20stroke%3D%22%23c9a45c%22%20stroke-width%3D%224%22%2F%3E%20%3Cpath%20d%3D%22M25%2012.5V33.5M25%2027L37%2016.5M30%2023.5L38.5%2033.5%22%20fill%3D%22none%22%20stroke%3D%22%232e5a46%22%20stroke-width%3D%225%22%20stroke-linecap%3D%22square%22%2F%3E%20%3Cpath%20d%3D%22M19%2046V54H45V46%22%20fill%3D%22none%22%20stroke%3D%22%23c9a45c%22%20stroke-width%3D%225.5%22%20stroke-linejoin%3D%22round%22%2F%3E%20%3C%2Fsvg%3E" width="64" height="64" alt=""></div><div class="tabmock"><img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%20%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2210%22%20fill%3D%22%232e5a46%22%2F%3E%20%3Crect%20x%3D%229%22%20y%3D%227%22%20width%3D%2246%22%20height%3D%2232%22%20rx%3D%222%22%20fill%3D%22%23f8f8f3%22%20stroke%3D%22%23c9a45c%22%20stroke-width%3D%224%22%2F%3E%20%3Cpath%20d%3D%22M25%2012.5V33.5M25%2027L37%2016.5M30%2023.5L38.5%2033.5%22%20fill%3D%22none%22%20stroke%3D%22%232e5a46%22%20stroke-width%3D%225%22%20stroke-linecap%3D%22square%22%2F%3E%20%3Cpath%20d%3D%22M19%2046V54H45V46%22%20fill%3D%22none%22%20stroke%3D%22%23c9a45c%22%20stroke-width%3D%225.5%22%20stroke-linejoin%3D%22round%22%2F%3E%20%3C%2Fsvg%3E" width="16" height="16" alt="">내 파일 - 파일 - kwonmo.net</div><span class="cap">favicon.svg · 16 / 32 / 64</span></div><div class="tile dark"><div class="favs"><img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%20%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2210%22%20fill%3D%22%232e5a46%22%2F%3E%20%3Crect%20x%3D%229%22%20y%3D%227%22%20width%3D%2246%22%20height%3D%2232%22%20rx%3D%222%22%20fill%3D%22%23f8f8f3%22%20stroke%3D%22%23c9a45c%22%20stroke-width%3D%224%22%2F%3E%20%3Cpath%20d%3D%22M25%2012.5V33.5M25%2027L37%2016.5M30%2023.5L38.5%2033.5%22%20fill%3D%22none%22%20stroke%3D%22%232e5a46%22%20stroke-width%3D%225%22%20stroke-linecap%3D%22square%22%2F%3E%20%3Cpath%20d%3D%22M19%2046V54H45V46%22%20fill%3D%22none%22%20stroke%3D%22%23c9a45c%22%20stroke-width%3D%225.5%22%20stroke-linejoin%3D%22round%22%2F%3E%20%3C%2Fsvg%3E" width="16" height="16" alt=""><img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%20%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2210%22%20fill%3D%22%232e5a46%22%2F%3E%20%3Crect%20x%3D%229%22%20y%3D%227%22%20width%3D%2246%22%20height%3D%2232%22%20rx%3D%222%22%20fill%3D%22%23f8f8f3%22%20stroke%3D%22%23c9a45c%22%20stroke-width%3D%224%22%2F%3E%20%3Cpath%20d%3D%22M25%2012.5V33.5M25%2027L37%2016.5M30%2023.5L38.5%2033.5%22%20fill%3D%22none%22%20stroke%3D%22%232e5a46%22%20stroke-width%3D%225%22%20stroke-linecap%3D%22square%22%2F%3E%20%3Cpath%20d%3D%22M19%2046V54H45V46%22%20fill%3D%22none%22%20stroke%3D%22%23c9a45c%22%20stroke-width%3D%225.5%22%20stroke-linejoin%3D%22round%22%2F%3E%20%3C%2Fsvg%3E" width="32" height="32" alt=""><img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%20%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2210%22%20fill%3D%22%232e5a46%22%2F%3E%20%3Crect%20x%3D%229%22%20y%3D%227%22%20width%3D%2246%22%20height%3D%2232%22%20rx%3D%222%22%20fill%3D%22%23f8f8f3%22%20stroke%3D%22%23c9a45c%22%20stroke-width%3D%224%22%2F%3E%20%3Cpath%20d%3D%22M25%2012.5V33.5M25%2027L37%2016.5M30%2023.5L38.5%2033.5%22%20fill%3D%22none%22%20stroke%3D%22%232e5a46%22%20stroke-width%3D%225%22%20stroke-linecap%3D%22square%22%2F%3E%20%3Cpath%20d%3D%22M19%2046V54H45V46%22%20fill%3D%22none%22%20stroke%3D%22%23c9a45c%22%20stroke-width%3D%225.5%22%20stroke-linejoin%3D%22round%22%2F%3E%20%3C%2Fsvg%3E" width="64" height="64" alt=""></div><div class="tabmock"><img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%20%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2210%22%20fill%3D%22%232e5a46%22%2F%3E%20%3Crect%20x%3D%229%22%20y%3D%227%22%20width%3D%2246%22%20height%3D%2232%22%20rx%3D%222%22%20fill%3D%22%23f8f8f3%22%20stroke%3D%22%23c9a45c%22%20stroke-width%3D%224%22%2F%3E%20%3Cpath%20d%3D%22M25%2012.5V33.5M25%2027L37%2016.5M30%2023.5L38.5%2033.5%22%20fill%3D%22none%22%20stroke%3D%22%232e5a46%22%20stroke-width%3D%225%22%20stroke-linecap%3D%22square%22%2F%3E%20%3Cpath%20d%3D%22M19%2046V54H45V46%22%20fill%3D%22none%22%20stroke%3D%22%23c9a45c%22%20stroke-width%3D%225.5%22%20stroke-linejoin%3D%22round%22%2F%3E%20%3C%2Fsvg%3E" width="16" height="16" alt="">내 파일 - 파일 - kwonmo.net</div><span class="cap">favicon.svg · 어두운 탭</span></div></div>
+        <div class="code-h"><b>logo.svg</b><button class="btn" data-copy data-src="src-logo">복사</button><button class="btn" data-dl="logo.svg" data-mime="image/svg+xml" data-src="src-logo">logo.svg 받기</button></div><pre id="src-logo">&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"&gt;
+  &lt;rect x="2" y="2" width="60" height="60" rx="7" fill="#2e5a46"/&gt;
+  &lt;rect x="6.5" y="6.5" width="51" height="51" rx="4" fill="none" stroke="#244a39" stroke-width="2"/&gt;
+  &lt;rect x="13" y="11" width="38" height="27" rx="2" fill="#c9a45c"/&gt;
+  &lt;rect x="16" y="14" width="32" height="21" fill="#f8f8f3"/&gt;
+  &lt;path d="M27 16.5V32.5M27 27.5L36 19.5M30.5 25L37 32.5" fill="none" stroke="#2e5a46" stroke-width="3.4" stroke-linecap="square"/&gt;
+  &lt;circle cx="14.8" cy="24.5" r="1" fill="#7a5a1e"/&gt;&lt;circle cx="49.2" cy="24.5" r="1" fill="#7a5a1e"/&gt;
+  &lt;path d="M22 44V49.5H42V44" fill="none" stroke="#c9a45c" stroke-width="3.5" stroke-linejoin="round"/&gt;
+  &lt;rect x="18.5" y="42" width="7" height="4" rx="1" fill="#c9a45c"/&gt;&lt;rect x="38.5" y="42" width="7" height="4" rx="1" fill="#c9a45c"/&gt;
+&lt;/svg&gt;
+</pre>
+        <div class="code-h"><b>favicon.svg</b><button class="btn" data-copy data-src="src-fav">복사</button><button class="btn" data-dl="favicon.svg" data-mime="image/svg+xml" data-src="src-fav">favicon.svg 받기</button></div><pre id="src-fav">&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"&gt;
+  &lt;rect width="64" height="64" rx="10" fill="#2e5a46"/&gt;
+  &lt;rect x="9" y="7" width="46" height="32" rx="2" fill="#f8f8f3" stroke="#c9a45c" stroke-width="4"/&gt;
+  &lt;path d="M25 12.5V33.5M25 27L37 16.5M30 23.5L38.5 33.5" fill="none" stroke="#2e5a46" stroke-width="5" stroke-linecap="square"/&gt;
+  &lt;path d="M19 46V54H45V46" fill="none" stroke="#c9a45c" stroke-width="5.5" stroke-linejoin="round"/&gt;
+&lt;/svg&gt;
+</pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="memo">
+    <div class="sec-h"><span class="num">⑥</span><h2>구현 메모</h2></div>
+    <h3>CSS 변수 재정의 (라이트 <code>:root</code> / 다크 <code>:root.dark</code>)</h3>
+    <div class="tbl-wrap"><table><thead><tr><th>변수</th><th>라이트 · 주간 열람실</th><th>다크 · 야간 서고</th></tr></thead><tbody><tr><td><code>--background</code></td><td><span class="sw" style="background:#e7ebe4"></span><code>#e7ebe4</code></td><td><span class="sw" style="background:#0f1613"></span><code>#0f1613</code></td></tr><tr><td><code>--surfacePrimary</code></td><td><span class="sw" style="background:#f8f8f3"></span><code>#f8f8f3</code></td><td><span class="sw" style="background:#16201b"></span><code>#16201b</code></td></tr><tr><td><code>--surfaceSecondary</code></td><td><span class="sw" style="background:#dfe5dc"></span><code>#dfe5dc</code></td><td><span class="sw" style="background:#1d2a23"></span><code>#1d2a23</code></td></tr><tr><td><code>--textPrimary</code></td><td><span class="sw" style="background:#4d5a52"></span><code>#4d5a52</code></td><td><span class="sw" style="background:#a7ad9f"></span><code>#a7ad9f</code></td></tr><tr><td><code>--textSecondary</code></td><td><span class="sw" style="background:#1d2a23"></span><code>#1d2a23</code></td><td><span class="sw" style="background:#e3e0d3"></span><code>#e3e0d3</code></td></tr><tr><td><code>--divider</code></td><td><span class="sw" style="background:#cfd6cc"></span><code>#cfd6cc</code></td><td><span class="sw" style="background:#2a3830"></span><code>#2a3830</code></td></tr><tr><td><code>--hover</code></td><td><span class="sw" style="background:rgba(46,90,70,.07)"></span><code>rgba(46,90,70,.07)</code></td><td><span class="sw" style="background:rgba(209,168,90,.08)"></span><code>rgba(209,168,90,.08)</code></td></tr><tr><td><code>--borderPrimary</code></td><td><span class="sw" style="background:#cfd6cc"></span><code>#cfd6cc</code></td><td><span class="sw" style="background:#2a3830"></span><code>#2a3830</code></td></tr><tr><td><code>--borderSecondary</code></td><td><span class="sw" style="background:#b4bfb3"></span><code>#b4bfb3</code></td><td><span class="sw" style="background:#3a4a40"></span><code>#3a4a40</code></td></tr><tr><td><code>--action</code></td><td><span class="sw" style="background:#2e5a46"></span><code>#2e5a46</code></td><td><span class="sw" style="background:#d1a85a"></span><code>#d1a85a</code></td></tr><tr><td><code>--blue</code></td><td><span class="sw" style="background:#2e5a46"></span><code>#2e5a46</code></td><td><span class="sw" style="background:#7fb39a"></span><code>#7fb39a</code></td></tr><tr><td><code>--dark-blue</code></td><td><span class="sw" style="background:#234737"></span><code>#234737</code></td><td><span class="sw" style="background:#6a9c84"></span><code>#6a9c84</code></td></tr><tr><td><code>--red</code></td><td><span class="sw" style="background:#b04030"></span><code>#b04030</code></td><td><span class="sw" style="background:#e07a64"></span><code>#e07a64</code></td></tr><tr><td><code>--dark-red</code></td><td><span class="sw" style="background:#8e3326"></span><code>#8e3326</code></td><td><span class="sw" style="background:#c4644f"></span><code>#c4644f</code></td></tr><tr><td><code>--iconPrimary</code></td><td><span class="sw" style="background:#2e5a46"></span><code>#2e5a46</code></td><td><span class="sw" style="background:#7fb39a"></span><code>#7fb39a</code></td></tr><tr><td><code>--iconSecondary</code></td><td><span class="sw" style="background:#f8f8f3"></span><code>#f8f8f3</code></td><td><span class="sw" style="background:#0f1613"></span><code>#0f1613</code></td></tr><tr><td><code>--iconTertiary</code></td><td><span class="sw" style="background:#7f8a82"></span><code>#7f8a82</code></td><td><span class="sw" style="background:#78806f"></span><code>#78806f</code></td></tr><tr><td><code>--icon-blue</code></td><td><span class="sw" style="background:#2e5a46"></span><code>#2e5a46</code></td><td><span class="sw" style="background:#7fb39a"></span><code>#7fb39a</code></td></tr><tr><td><code>--icon-orange</code></td><td><span class="sw" style="background:#a8762a"></span><code>#a8762a</code></td><td><span class="sw" style="background:#d1a85a"></span><code>#d1a85a</code></td></tr><tr><td><code>--icon-red</code></td><td><span class="sw" style="background:#b04030"></span><code>#b04030</code></td><td><span class="sw" style="background:#e07a64"></span><code>#e07a64</code></td></tr><tr><td><code>--icon-yellow</code></td><td><span class="sw" style="background:#8a7a4a"></span><code>#8a7a4a</code></td><td><span class="sw" style="background:#bfae7a"></span><code>#bfae7a</code></td></tr><tr><td><code>--icon-violet</code></td><td><span class="sw" style="background:#5d5a7e"></span><code>#5d5a7e</code></td><td><span class="sw" style="background:#a9a3cf"></span><code>#a9a3cf</code></td></tr><tr><td><code>--icon-green</code></td><td><span class="sw" style="background:#2e5a46"></span><code>#2e5a46</code></td><td><span class="sw" style="background:#7fb39a"></span><code>#7fb39a</code></td></tr></tbody></table></div>
+    <h3>손댈 주요 선택자</h3>
+    <div class="tbl-wrap"><table><thead><tr><th>선택자</th><th>바꾸는 것</th></tr></thead><tbody><tr><td><code>header, #search #input</code></td><td>짙은 녹색 띠(다크에선 패널색) + 3px 황동 하단선, 반투명 입력칸</td></tr><tr><td><code>nav &gt; .action:first-child span::before</code></td><td>사용자명 앞 ‘열람자’</td></tr><tr><td><code>.vue-simple-progress(-bar)</code></td><td>녹색 채움 끝에 황동 2px 눈금 (!important)</td></tr><tr><td><code>.breadcrumbs::before</code></td><td>경로 앞 ‘소장 위치’ 꼬리표</td></tr><tr><td><code>#listing, .item[data-dir], .name::before</code></td><td>counter-reset / counter-increment 로 서가·문서 번호</td></tr><tr><td><code>#listing.list .item</code></td><td>줄마다 떨어진 색인 카드(margin, border-radius, 그림자). 폴더는 왼쪽 녹색 띠</td></tr><tr><td><code>#listing .item[aria-selected="true"]</code></td><td>꺼낸 카드: transform: translateX + 황동 선 + 그림자</td></tr><tr><td><code>#listing.mosaic(.gallery) .item</code></td><td>보존 상자 뚜껑(border-top 6px), 사진은 매트 + 아래 캡션</td></tr><tr><td><code>#login form, ::before, h1::after</code></td><td>열람 카드 배경 3겹, ‘No. 0001’, 부제</td></tr></tbody></table></div>
+    <h3>글꼴</h3><ul><li><b>Gowun Batang</b> — 경로·소제목·사용자명·로그인 제목 (Google Fonts, OFL)</li><li><b>IBM Plex Sans KR</b> — 본문 (Google Fonts, OFL)</li><li><b>IBM Plex Mono</b> — 청구기호·크기·날짜·버전 (Google Fonts, OFL)</li><li>Material Icons — 순정 그대로</li></ul>
+    <h3>확인되지 않은 점 · 주의</h3><ul><li>kwonmo.com 은 이 작업 환경에서 열리지 않았다(프록시가 접속 거부, 403). 두 테마는 직접 보지 못했고 작업지시서의 토큰 표로만 판단했다.</li><li>화면은 File Browser v2.63.23 소스(Vue 템플릿·CSS)를 읽고 같은 클래스·id 구조로 다시 그린 목업이다. 실제 인스턴스에 custom.css 를 넣어 본 것은 아니므로 실물과 간격·크기가 조금 다를 수 있다(미검증).</li><li>디스크 사용 막대(<code>.vue-simple-progress</code>, <code>-bar</code>)는 색·높이가 인라인 style 로 들어가므로 <code>!important</code> 가 필요하다.</li><li><code>::before/::after</code> 의 <code>content</code> 로 붙인 문구는 CSS 만으로 가능하지만 번역·스크린리더 대상이 아니다.</li><li>청구기호는 고정 ID 가 아니라 ‘지금 화면의 순번’이다. 정렬을 바꾸면 번호도 바뀐다.</li><li>선택 줄은 translateX 로 밀고 같은 만큼 폭을 줄인다. 격자 보기에서는 폭을 줄이지 않으므로 상자가 오른쪽으로 0.9em 비어져 나온다(의도).</li><li>목록 보기에서 File Browser 가 여러 개 선택(Shift/Ctrl) 상태일 때도 같은 스타일이 줄마다 적용된다 — 여러 장이 동시에 꺼내진 모양.</li></ul>
+    <div class="code-h"><b>custom.css 초안 (변수 + 규칙)</b><button class="btn" data-copy data-src="src-css">복사</button><button class="btn" data-dl="custom.css" data-mime="text/css" data-src="src-css">custom.css 받기</button></div><pre id="src-css">@import url("https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&amp;family=IBM+Plex+Sans+KR:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap");
+
+:root {
+  --background: #e7ebe4;
+  --surfacePrimary: #f8f8f3;
+  --surfaceSecondary: #dfe5dc;
+  --textPrimary: #4d5a52;
+  --textSecondary: #1d2a23;
+  --divider: #cfd6cc;
+  --hover: rgba(46,90,70,.07);
+  --borderPrimary: #cfd6cc;
+  --borderSecondary: #b4bfb3;
+  --action: #2e5a46;
+  --blue: #2e5a46;
+  --dark-blue: #234737;
+  --red: #b04030;
+  --dark-red: #8e3326;
+  --iconPrimary: #2e5a46;
+  --iconSecondary: #f8f8f3;
+  --iconTertiary: #7f8a82;
+  --icon-blue: #2e5a46;
+  --icon-orange: #a8762a;
+  --icon-red: #b04030;
+  --icon-yellow: #8a7a4a;
+  --icon-violet: #5d5a7e;
+  --icon-green: #2e5a46;
+}
+:root.dark {
+  --background: #0f1613;
+  --surfacePrimary: #16201b;
+  --surfaceSecondary: #1d2a23;
+  --textPrimary: #a7ad9f;
+  --textSecondary: #e3e0d3;
+  --divider: #2a3830;
+  --hover: rgba(209,168,90,.08);
+  --borderPrimary: #2a3830;
+  --borderSecondary: #3a4a40;
+  --action: #d1a85a;
+  --blue: #7fb39a;
+  --dark-blue: #6a9c84;
+  --red: #e07a64;
+  --dark-red: #c4644f;
+  --iconPrimary: #7fb39a;
+  --iconSecondary: #0f1613;
+  --iconTertiary: #78806f;
+  --icon-blue: #7fb39a;
+  --icon-orange: #d1a85a;
+  --icon-red: #e07a64;
+  --icon-yellow: #bfae7a;
+  --icon-violet: #a9a3cf;
+  --icon-green: #7fb39a;
+}
+
+:root {
+  --green: #2e5a46; --brass: #a8762a; --dim: #7f8a82; --line: #cfd6cc;
+  --bar: #2e5a46; --bar-ink: #eef1e8; --card: #fbfaf5; --ruling: rgba(46,90,70,.11); --card-rule: #c0574a;
+  --serif: "Gowun Batang", serif;
+  --sans: "IBM Plex Sans KR", sans-serif;
+  --mono: "IBM Plex Mono", "IBM Plex Sans KR", monospace;
+}
+:root.dark {
+  --green: #7fb39a; --brass: #d1a85a; --dim: #78806f; --line: #2a3830;
+  --bar: #16201b; --bar-ink: #e3e0d3; --card: #1a2620; --ruling: rgba(127,179,154,.09); --card-rule: #e07a64;
+}
+
+body { font-family: var(--sans); }
+
+/* 서고 간판: 짙은 녹색 띠 + 황동 선 */
+header { background: var(--bar); border-bottom: 3px solid var(--brass); box-shadow: none; }
+header .action { color: var(--bar-ink); }
+header .action i { border-radius: 4px; }
+#search #input { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.16); border-radius: 4px; color: var(--bar-ink); }
+#search #input &gt; i { color: var(--brass); }
+#search input, #search #input input::placeholder { color: var(--bar-ink); opacity: .85; }
+
+nav { background: var(--surfacePrimary); border-right: 1px solid var(--line); }
+nav .action { font-size: 1em; padding: .6em 1.4em; color: var(--textSecondary); }
+nav .action i { color: var(--brass); font-size: 1.2em; margin-right: .55em; }
+nav .action:hover { background: var(--surfaceSecondary); }
+nav &gt; .action:first-child { font-family: var(--serif); font-weight: 700; color: var(--green); }
+nav &gt; .action:first-child span::before { content: "열람자 "; font-family: var(--sans); font-weight: 400; font-size: .75em; color: var(--dim); }
+nav &gt; div { border-top: 1px solid var(--line); }
+.credits { font-family: var(--mono); font-size: .66em; color: var(--dim); }
+/* 디스크 막대 = 서가가 찬 정도. 끝에 황동 눈금 */
+.vue-simple-progress { background: var(--surfaceSecondary) !important; border: 1px solid var(--line); border-radius: 2px !important; height: 10px !important; }
+.vue-simple-progress-bar { background: linear-gradient(90deg, var(--green) calc(100% - 2px), var(--brass) 0) !important; height: 100% !important; }
+
+.breadcrumbs { font-family: var(--serif); font-size: 1.05em; border-bottom: 1px solid var(--line); }
+.breadcrumbs::before { content: "소장 위치"; font-family: var(--mono); font-size: .62em; color: var(--brass); border: 1px solid currentColor; border-radius: 2px; padding: .1em .45em; margin-right: .7em; }
+.breadcrumbs &gt; a i { color: var(--green); }
+.breadcrumbs .chevron i { color: var(--brass); }
+.breadcrumbs span a { color: var(--textSecondary); font-weight: 700; }
+
+/* 청구기호: 폴더는 서가 번호, 파일은 문서 번호. 지금 정렬 순서대로 매긴다 */
+#listing { counter-reset: shelf doc; }
+#listing .item[data-dir="true"] { counter-increment: shelf; }
+#listing .item[data-dir="false"] { counter-increment: doc; }
+#listing .item .name::before { font-family: var(--mono); font-size: .7em; font-weight: 500; color: var(--brass); border: 1px solid currentColor; border-radius: 2px; padding: .05em .4em; margin-right: .8em; vertical-align: .15em; }
+#listing .item[data-dir="true"] .name::before { content: "서가 " counter(shelf, decimal-leading-zero); }
+#listing .item[data-dir="false"] .name::before { content: "No." counter(doc, decimal-leading-zero); }
+
+/* 목록 = 카드함. 한 줄이 색인 카드 한 장 */
+#listing.list { margin-top: .5em; }
+#listing.list .item.header { background: transparent; border: 0; border-bottom: 2px solid var(--green); padding: .7em 1em; font-family: var(--serif); color: var(--green); }
+#listing.list .item { background: var(--card); border: 1px solid var(--line); border-radius: 3px; margin: 0 0 .35em; padding: .65em 1em; box-shadow: 0 1px 0 var(--line); transition: transform .15s ease, box-shadow .15s ease; }
+#listing.list .item[data-dir="true"] { background: var(--surfaceSecondary); border-left: 4px solid var(--green); }
+#listing.list .item .name { color: var(--textSecondary); }
+#listing.list .item .size, #listing.list .item .modified { font-family: var(--mono); font-size: .78em; color: var(--dim); }
+#listing.list .item div:first-of-type img { border-radius: 2px; border: 2px solid var(--card); outline: 1px solid var(--line); }
+#listing .item:hover { background: var(--card); box-shadow: 0 2px 8px -4px rgba(0,0,0,.3); }
+/* 선택 = 카드함에서 반쯤 꺼낸 카드 */
+#listing .item[aria-selected="true"] { background: var(--card) !important; color: var(--textSecondary) !important; border-color: var(--brass); box-shadow: inset 4px 0 0 var(--brass), 0 10px 22px -10px rgba(0,0,0,.45); transform: translateX(.9em); }
+/* 밀려난 만큼 폭을 줄여 오른쪽 끝은 제자리 */
+#listing.list .item[aria-selected="true"] { width: calc(100% - .9em); }
+#listing .item[aria-selected="true"] .name { font-weight: 600; }
+.file-icons [aria-selected="true"] i { color: var(--brass); }
+
+#listing h2 { font-family: var(--serif); font-weight: 700; font-size: 1.05em; color: var(--green); margin: 1.2em .5em .3em; padding-bottom: .25em; border-bottom: 1px solid var(--line); }
+/* 격자 = 보존 상자. 윗면 띠가 뚜껑 */
+#listing.mosaic .item { background: var(--card); border: 1px solid var(--line); border-top: 6px solid var(--green); border-radius: 3px; box-shadow: 0 2px 0 var(--line) !important; }
+#listing.mosaic .item[data-dir="true"] { background: var(--surfaceSecondary); }
+#listing.mosaic .item:hover { border-top-color: var(--brass); }
+#listing.mosaic .item .name { color: var(--textSecondary); font-size: .9em; }
+/* 사진 = 매트 액자. 캡션은 사진 아래 */
+#listing.mosaic.gallery .item { flex-direction: column; align-items: stretch; padding: .8em .8em 0; border-top-width: 1px; }
+#listing.mosaic.gallery .item div:first-of-type { height: 10.5em; }
+#listing.mosaic.gallery .item img { border: 1px solid var(--line); }
+#listing.mosaic.gallery .item div:last-of-type { position: static; width: auto; padding: .65em 0 .75em; text-align: left; font-size: .85em; }
+#listing.mosaic.gallery .item[data-type="image"] div:last-of-type { background: none; color: var(--textSecondary); }
+
+/* 로그인 = 열람 카드 한 장: 붉은 머리선, 파란 괘선, 아래 구멍 */
+#login { background: var(--background); }
+#login form {
+  max-width: 21em; padding: 2.4em 2em 3.6em; border: 1px solid var(--line); border-top: 3px solid var(--card-rule); border-radius: 3px;
+  background:
+    radial-gradient(circle at 50% calc(100% - 1.5em), var(--background) .55em, var(--line) .6em, transparent .68em),
+    repeating-linear-gradient(transparent 0 1.95em, var(--ruling) 1.95em 2em),
+    var(--card);
+  box-shadow: 0 22px 40px -24px rgba(0,0,0,.5);
+}
+#login form::before { content: "No. 0001"; position: absolute; top: .8em; right: 1em; font-family: var(--mono); font-size: .72em; color: var(--brass); }
+#login img { width: 4em; height: 4em; }
+#login h1 { font-family: var(--serif); font-weight: 700; font-size: 2.2em; color: var(--green); margin: .4em 0 .9em; }
+#login h1::after { content: "서고 출입 · 열람증 확인"; display: block; font-family: var(--mono); font-size: .3em; font-weight: 400; letter-spacing: .12em; color: var(--brass); margin-top: .5em; }
+#login .input { background: transparent; border: 0; border-bottom: 1px solid var(--green); border-radius: 0; padding: .65em .1em; color: var(--textSecondary); }
+#login .input::placeholder { color: var(--dim); }
+#login .input:focus { border-bottom-color: var(--brass); box-shadow: 0 1px 0 var(--brass); }
+#login .button { margin-top: 1.2em; background: var(--green); color: var(--surfacePrimary); border-radius: 3px; padding: .75em; font-weight: 600; letter-spacing: .2em; }
+#login .button:hover { background: var(--brass); }
+
+@media (max-width: 736px) {
+  #listing .item[aria-selected="true"] { transform: translateX(.4em); }
+  #listing.list .item[aria-selected="true"] { width: calc(100% - .4em); }
+  #listing .item .name::before { font-size: .62em; margin-right: .5em; }
+}
+</pre>
+  </section>
+</main>
+<footer><div class="wrap">kwonmo.net 웹하드 시안 4 / 4 — 화면은 File Browser 의 실제 클래스 구조를 흉내 낸 목업이며, 위 custom.css 초안을 그대로 적용해 그린 것이다.</div></footer>
+
+<script>
+
+(function(){
+  var root=document.documentElement;
+  function fit(){
+    document.querySelectorAll('.stage').forEach(function(st){
+      var fb=st.firstElementChild, w=+fb.dataset.w;
+      fb.style.zoom=Math.min(1.25,st.clientWidth/w);
+    });
+  }
+  function setTheme(t){
+    root.dataset.theme=t;
+    document.querySelectorAll('.fb').forEach(function(f){f.classList.toggle('dark',t==='dark');});
+    document.querySelectorAll('[data-set-theme]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.setTheme===t));});
+    document.querySelectorAll('.theme-name').forEach(function(s){s.textContent=s.dataset[t];});
+    document.querySelectorAll('img[data-src-dark]').forEach(function(i){i.src=i.dataset[t==='dark'?'srcDark':'srcLight'];});
+  }
+  document.querySelectorAll('[data-set-theme]').forEach(function(b){b.addEventListener('click',function(){setTheme(b.dataset.setTheme);});});
+  document.querySelectorAll('[data-set-view]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var l=document.querySelector('#'+b.dataset.target+' #listing');
+      l.className=(b.dataset.setView==='gallery'?'mosaic gallery':'mosaic')+' file-icons';
+      var ic=document.querySelector('#'+b.dataset.target+' [aria-label="보기 전환"] i');
+      ic.textContent=b.dataset.setView==='gallery'?'view_list':'grid_view';
+      b.parentNode.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',String(x===b));});
+    });
+  });
+  function srcOf(b){return document.getElementById(b.dataset.src).textContent;}
+  document.querySelectorAll('[data-copy]').forEach(function(b){
+    b.addEventListener('click',function(){
+      navigator.clipboard.writeText(srcOf(b)).then(function(){
+        b.textContent='복사됨';setTimeout(function(){b.textContent='복사';},1400);
+      },function(err){b.textContent='복사 실패';console.error(err);});
+    });
+  });
+  document.querySelectorAll('[data-dl]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var url=URL.createObjectURL(new Blob([srcOf(b)],{type:b.dataset.mime}));
+      var a=document.createElement('a');a.href=url;a.download=b.dataset.dl;document.body.appendChild(a);a.click();a.remove();
+      setTimeout(function(){URL.revokeObjectURL(url);},1500);
+    });
+  });
+  setTheme(root.dataset.theme);
+  fit();
+  window.addEventListener('resize',fit);
+  if(document.fonts){document.fonts.ready.then(fit);}
+})();
+
+</script>
+</body>
+</html>
