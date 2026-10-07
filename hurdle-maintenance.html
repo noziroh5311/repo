@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>kwonmo.net</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400&display=swap">
+<style>
+:root {
+  --bg: #f6f7f9; --ink: #1f2430; --mid: #5d6574; --dim: #9aa1ad; --line: #e3e6eb;
+  --blue: #3b6fd8; --amber: #e0a52b; --green: #3aa76d; --card: #ffffff;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { min-height: 100%; display: flex; flex-direction: column; background: var(--bg); color: var(--ink); font-family: "Noto Sans KR", sans-serif; }
+
+main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 16px; text-align: center; }
+
+/* 톱니 */
+.icon { width: 88px; height: 88px; margin-bottom: 28px; color: var(--blue); }
+.icon .gear { transform-origin: 40px 40px; animation: turn 9s linear infinite; }
+@keyframes turn { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .icon .gear, .bar i { animation: none; } }
+
+/* .lede 는 안에 form 을 품어야 해서 p 가 아니라 div 다 */
+h1 { margin: 0; font-size: clamp(30px, 6vw, 42px); font-weight: 700; letter-spacing: -.01em; }
+.lede { margin: 14px 0 0; font-size: 16px; font-weight: 400; color: var(--mid); line-height: 1.7; }
+
+/* ── 숨은 PIN 입력칸 ─────────────────────────────
+   안내 문장 끝의 말줄임표(...)가 곧 입력칸이다. placeholder 를 본문과 같은 색으로 칠해
+   문장의 일부처럼 보이게 하고, 입력하면 password 의 ●가 늘어나 ‘진행 중’ 점처럼 이어진다. */
+#hurdle { display: inline; margin: 0; }
+#hurdle input {
+  display: inline-block; field-sizing: content; min-width: 1.6ch; max-width: 14ch;
+  /* 손가락으로도 눌리게 눌림 영역만 넓히고 자리는 그대로 */
+  margin: -.3em -.4em -.3em -.35em; padding: .3em .4em .3em .4em; border: 0; outline: 0; background: transparent; border-radius: 0;
+  font: inherit; color: var(--mid); letter-spacing: .08em; vertical-align: baseline;
+  caret-color: transparent; -webkit-appearance: none; appearance: none;
+}
+#hurdle input::placeholder { color: var(--mid); opacity: 1; }
+/* field-sizing 을 모르는 브라우저는 고정 폭 */
+@supports not (field-sizing: content) { #hurdle input { width: calc(3.2ch + .8em); } }
+.nb { white-space: nowrap; }
+#hurdle button { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); border: 0; }
+
+/* 진행 막대 */
+.bar { position: relative; width: min(320px, 80vw); height: 3px; margin: 34px 0 30px; background: var(--line); border-radius: 99px; overflow: hidden; }
+.bar i { position: absolute; top: 0; left: -40%; width: 40%; height: 100%; border-radius: 99px; background: var(--blue); animation: slide 1.8s ease-in-out infinite; }
+@keyframes slide { to { left: 100%; } }
+
+/* 점검 안내 */
+.card { width: min(400px, 100%); background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 6px 22px; text-align: left; box-shadow: 0 12px 30px -20px rgba(31,36,48,.35); }
+.row { display: flex; justify-content: space-between; gap: 16px; padding: 13px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.row:last-child { border-bottom: 0; }
+.row span:first-child { color: var(--dim); }
+.row span:last-child { font-weight: 500; text-align: right; }
+.mono { font-family: "JetBrains Mono", monospace; font-size: 13px; }
+
+.status { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 22px; }
+.pill { display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); font-size: 12.5px; color: var(--mid); }
+.pill b { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); }
+.pill.ok b { background: var(--green); }
+.pill.work b { background: var(--amber); box-shadow: 0 0 0 3px rgba(224,165,43,.2); }
+
+footer { padding: 20px 16px 26px; font-size: 12px; color: var(--dim); text-align: center; }
+
+/* ── 시안 검토용 (실서비스엔 넣지 않음) ── */
+.demo-only { position: fixed; right: 16px; bottom: 16px; z-index: 10; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; font-size: 12px; }
+.demo-only button { appearance: none; border: 1px solid var(--line); background: #fff; color: var(--ink); padding: 6px 12px; border-radius: 999px; font: inherit; cursor: pointer; box-shadow: 0 4px 12px -6px rgba(0,0,0,.2); }
+.demo-only .toast { background: var(--ink); color: #fff; padding: 8px 12px; border-radius: 8px; display: none; max-width: 260px; text-align: left; line-height: 1.5; }
+.demo-only .toast.on { display: block; }
+body.reveal #hurdle input { outline: 2px dashed #d33; outline-offset: 3px; background: rgba(221,51,51,.06); }
+</style>
+</head>
+<body>
+<main>
+  <svg class="icon" viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <g class="gear">
+      <circle cx="40" cy="40" r="11"/>
+      <path d="M40 14v8M40 58v8M14 40h8M58 40h8M21.6 21.6l5.7 5.7M52.7 52.7l5.7 5.7M21.6 58.4l5.7-5.7M52.7 27.3l5.7-5.7"/>
+      <circle cx="40" cy="40" r="20"/>
+    </g>
+  </svg>
+
+  <h1>사이트 점검 중</h1>
+  <div class="lede">보다 안정적인 서비스를 위해 점검을 진행하고 <span class="nb">있습니다<form id="hurdle" method="post" action="/_hurdle/login"><input type="password" name="pin" inputmode="numeric" autocomplete="off" required autofocus aria-label="PIN" placeholder="..."><button type="submit">→</button></form></span><br>잠시 후 다시 접속해 주세요.</div>
+
+  <div class="bar" aria-hidden="true"><i></i></div>
+
+  <section class="card" aria-label="점검 안내">
+    <div class="row"><span>점검 대상</span><span>kwonmo.net 전체</span></div>
+    <div class="row"><span>점검 내용</span><span>서버 정비 · 보안 업데이트</span></div>
+    <div class="row"><span>종료 예정</span><span>완료 시 자동 재개</span></div>
+    <div class="row"><span>점검 시작</span><span class="mono">2026-10-07 02:00</span></div>
+  </section>
+
+  <div class="status" aria-label="상태">
+    <span class="pill ok"><b></b>서버</span>
+    <span class="pill work"><b></b>저장소 점검 중</span>
+    <span class="pill"><b></b>외부 접속 제한</span>
+  </div>
+</main>
+<footer>kwonmo.net · 이용에 불편을 드려 죄송합니다</footer>
+
+<!-- 시안 검토용 — 실서비스엔 넣지 않음 -->
+<div class="demo-only">
+  <div class="toast" id="toast"></div>
+  <button type="button" id="reveal">숨은 입력칸 보기</button>
+</div>
+<script>
+(function () {
+  var toast = document.getElementById('toast');
+  document.getElementById('reveal').addEventListener('click', function () {
+    var on = document.body.classList.toggle('reveal');
+    this.textContent = on ? '숨기기' : '숨은 입력칸 보기';
+  });
+  // 시안 파일에선 실제 /_hurdle/login 으로 보내지 않고 동작만 보여 준다
+  document.getElementById('hurdle').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var n = this.pin.value.length;
+    toast.textContent = '시안: PIN ' + n + '자리를 POST /_hurdle/login 으로 보냄 (실서비스에선 실제 제출)';
+    toast.classList.add('on');
+    setTimeout(function () { toast.classList.remove('on'); }, 2600);
+  });
+})();
+</script>
+</body>
+</html>
